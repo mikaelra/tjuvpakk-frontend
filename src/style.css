@@ -35,6 +35,15 @@ h1 {
   line-height: 1.1;
 }
 
+.logo-image {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+}
+
+
 #app {
   max-width: 1280px;
   margin: 0 auto;

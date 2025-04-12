@@ -68,7 +68,9 @@ function Home() {
 
   return (
     <div className="p-6 max-w-md mx-auto text-center">
-      <h1 className="text-2xl mb-4">Welcome to Tjuvpakk</h1>
+      
+      <img src="/images/logo.png" alt="Tjuvpakk-logo" className="logo-image" />
+      <p></p>
       <input className="border p-2 w-full mb-2" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} />
       <div className="flex gap-2 mb-2">
         <input className="border p-2 flex-1" placeholder="Lobby code" value={joinCode} onChange={e => setJoinCode(e.target.value)} />
