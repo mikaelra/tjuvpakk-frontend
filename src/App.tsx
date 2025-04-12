@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams } from "react-router-dom";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com";
+const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -19,6 +20,7 @@ interface LobbyState {
   raidwinner: string | null;
   pending_deny: string | null;
   deny_target: string | null;
+  readyPlayers: string[];
 }
 
 export default function App() {
@@ -99,9 +101,13 @@ function Lobby() {
     // Nullstill statusmelding når ny runde starter
     setStatusMsg("");
     setDenyTarget("");
+    setTarget("");
+    setAction("");
   }, [state?.round]);
 
   useEffect(() => {
+    if (state?.winner) return; // ✅ Game is over – stop polling
+    
     const interval = setInterval(async () => {
       try {
         const res1 = await fetch(`${BACKEND_URL}/get_state/${lobbyId}`);
@@ -125,7 +131,7 @@ function Lobby() {
       }
     }, 2000);
     return () => clearInterval(interval);
-  }, [lobbyId, playerName]);
+  }, [lobbyId, playerName, state?.winner]);
   
   const handleSubmit = async () => {
     if (!action || !resource) {
@@ -153,28 +159,31 @@ function Lobby() {
 
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
+  const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-xl mb-2">Lobby: {lobbyId}</h2>
+      <h2 className="text-xl mb-2">Lobby-id: {lobbyId}</h2>
       <p className="mb-4 text-lg">🌀 Round: {state?.round ?? "?"}</p>
       <p className="mb-4 text-lg">🦹‍♂️ Your Name: {playerName}</p>
       <div className="mb-4">
         <h3 className="font-bold">Players in Lobby</h3>
         <ul className="list-disc pl-6">
-          {state?.players.map(p => (
-            <li key={p.name}>
-              {state.raidwinner === p.name && "👑 "}
-              {p.name}
-            </li>
-          ))}
+        {state?.players.map(p => (
+          <li key={p.name}>
+            {p.hp <= 0 && "☠️ "}
+            {(state.winner === p.name || (!state.winner && state.raidwinner === p.name)) && "👑 "}
+            {p.name}
+            {state.readyPlayers?.includes(p.name) && " ✅"}
+          </li>
+        ))}
         </ul>
       </div>
       <div className="mb-4">
         <h3 className="font-bold">Your Stats</h3>
         <p>❤: {myPlayer?.hp} | 💰: {myPlayer?.coins} | ⚔: {myPlayer?.attackDamage}</p>
       </div>
-      {!gameOver && !isDenied && (
+      {!gameOver && !isDenied && isAlive &&(
   <div className="mb-4">
     <div className="mb-2">
       <h4 className="font-semibold mb-1">Choose Action</h4>
@@ -222,7 +231,7 @@ function Lobby() {
     </div>
   </div>
 )}
-      {!gameOver && !isDenied &&(
+      {!gameOver && !isDenied && isAlive &&(
         <>
       <button className="bg-blue-600 text-white px-4 py-2" onClick={handleSubmit}>Submit</button>
         </>
