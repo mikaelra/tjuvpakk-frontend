@@ -39,7 +39,7 @@ function Home() {
 
   const handleCreate = async () => {
     if (!name) return;
-    const res = await fetch("${BACKEND_URL}/create_lobby", {
+    const res = await fetch(`${BACKEND_URL}/create_lobby`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name })
