@@ -220,9 +220,9 @@ function Lobby() {
       <h4 className="font-semibold mb-1">Choose Resource</h4>
       <div className="flex flex-wrap gap-2">
         {[
-          { id: "gain_hp", label: "Get HP" },
-          { id: "gain_coin", label: "Get Coin" },
-          { id: "gain_attack", label: "Get Attack" },
+          { id: "gain_hp", label: "Get ❤" },
+          { id: "gain_coin", label: "Get 💰" },
+          { id: "gain_attack", label: "Get ⚔" },
         ].map(res => (
           <button
             key={res.id}
