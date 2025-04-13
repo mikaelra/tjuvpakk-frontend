@@ -290,6 +290,9 @@ function Lobby() {
         {gameOver && (
           <div className="bg-green-100 border border-green-400 text-green-800 p-4 rounded mt-6 text-center">
           🎉 Game Over! {alivePlayers[0]?.name} has won the game!
+          <Link to="/" className="underline text-blue-600" style={{ fontSize: "1rem" }}>
+          ← Back to Home
+          </Link>
           </div>
           )}
       </div>
