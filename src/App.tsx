@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import Rules from "./rules/Rules";
+import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -28,6 +29,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/rules" element={<Rules />} />
         <Route path="/lobby/:lobbyId" element={<Lobby />} />
       </Routes>
     </Router>
@@ -68,15 +70,18 @@ function Home() {
 
   return (
     <div className="p-6 max-w-md mx-auto text-center">
-      
-      <img src="/images/logo.png" alt="Tjuvpakk-logo" className="logo-image" />
-      <p></p>
+      <p>One person needs to create a lobby.</p>
+      <p>Then share the lobby id to the other players.</p>
       <input className="border p-2 w-full mb-2" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} />
       <div className="flex gap-2 mb-2">
         <input className="border p-2 flex-1" placeholder="Lobby code" value={joinCode} onChange={e => setJoinCode(e.target.value)} />
         <button className="bg-blue-500 text-white px-4" onClick={handleJoin}>Join</button>
       </div>
       <button className="bg-green-600 text-white px-4 py-2 mt-2" onClick={handleCreate}>Create Lobby</button>
+      <p></p>
+      <Link to="/rules" className="block text-blue-600 underline mt-6 text-center">
+  📜 Rules
+      </Link>
     </div>
   );
 }
