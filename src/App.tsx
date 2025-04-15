@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -48,6 +48,12 @@ function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name })
     });
+    if (!res.ok) {
+      const errorData = await res.json(); // 👈 get the error body
+      alert(errorData.error);
+      return; // backend should send { "error": "..." }
+    }
+
     const data = await res.json();
     localStorage.setItem("playerName", name);
     navigate(`/lobby/${data.lobby_id}`);
@@ -64,7 +70,9 @@ function Home() {
       localStorage.setItem("playerName", name);
       navigate(`/lobby/${joinCode}`);
     } else {
-      alert("Join failed. Maybe name is taken or lobby doesn't exist.");
+      const errorData = await res.json(); // 👈 get the error body
+      alert(errorData.error);
+      return; // backend should send { "error": "..." }
     }
   };
 
