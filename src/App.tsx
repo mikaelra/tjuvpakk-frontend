@@ -149,10 +149,6 @@ function Lobby() {
   }, [lobbyId, playerName, state?.winner]);
   
   const handleSubmit = async () => {
-    if (!action || !resource) {
-      setStatusMsg("Please choose both action and resource.");
-      return;
-  }
 
   try {
     const res = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
@@ -199,52 +195,52 @@ function Lobby() {
         <p>❤: {myPlayer?.hp} | 💰: {myPlayer?.coins} | ⚔: {myPlayer?.attackDamage}</p>
       </div>
       {!gameOver && !isDenied && isAlive &&(
-  <div className="mb-4">
-    <div className="mb-2">
-      <h4 className="font-semibold mb-1">Choose Action</h4>
-      <div className="flex flex-wrap gap-2">
-        {["attack", "defend", "raid"].map(act => (
-          <button
-            key={act}
-            className={`p-2 border rounded ${
-              action === act ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setAction(act)}
-            >
-            {act.charAt(0).toUpperCase() + act.slice(1)}
-          </button>
-        ))}
-        {action === "attack" && (
-          <select className="border p-2 mb-2" value={target} onChange={e => setTarget(e.target.value)}>
-            <option value="">Select target</option>
-            {otherPlayers?.map(p => (
-              <option key={p.name} value={p.name}>{p.name}</option>
+      <div className="mb-4">
+        <div className="mb-2">
+          <h4 className="font-semibold mb-1">Choose Action</h4>
+          <div className="flex flex-wrap gap-2">
+            {["attack", "defend", "raid"].map(act => (
+              <button
+                key={act}
+                className={`p-2 border rounded ${
+                  action === act ? "bg-blue-600 text-white" : "bg-gray-200"
+                }`}
+                onClick={() => setAction(act)}
+                >
+                {act.charAt(0).toUpperCase() + act.slice(1)}
+              </button>
             ))}
-          </select>
-        )}
+            {action === "attack" && (
+              <select className="border p-2 mb-2" value={target} onChange={e => setTarget(e.target.value)}>
+                <option value="">Select target</option>
+                {otherPlayers?.map(p => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        </div>
+        <div>
+          <h4 className="font-semibold mb-1">Choose Resource</h4>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "gain_hp", label: "Get ❤" },
+              { id: "gain_coin", label: "Get 💰" },
+              { id: "gain_attack", label: "Get ⚔" },
+            ].map(res => (
+              <button
+                key={res.id}
+                className={`p-2 border rounded ${
+                  resource === res.id ? "bg-green-600 text-white" : "bg-gray-200"
+                }`}
+                onClick={() => setResource(res.id)}
+              >
+                {res.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
-    <div>
-      <h4 className="font-semibold mb-1">Choose Resource</h4>
-      <div className="flex flex-wrap gap-2">
-        {[
-          { id: "gain_hp", label: "Get ❤" },
-          { id: "gain_coin", label: "Get 💰" },
-          { id: "gain_attack", label: "Get ⚔" },
-        ].map(res => (
-          <button
-            key={res.id}
-            className={`p-2 border rounded ${
-              resource === res.id ? "bg-green-600 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setResource(res.id)}
-          >
-            {res.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  </div>
 )}
       {!gameOver && !isDenied && isAlive &&(
         <>
