@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 
-//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
