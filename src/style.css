@@ -1,5 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Macondo+Swash+Caps&family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Outfit, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -30,9 +34,11 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2, h3 {
+  font-family: 'Macondo Swash Caps', 'Outfit', Arial, sans-serif; /* Decorative for headings */
+  line-height: 1.2;
+  font-weight: 600;
+  font-size: 2.4rem;
 }
 
 .logo-image {
