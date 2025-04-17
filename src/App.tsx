@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 import SoundtrackButton from "./musicplayer";
@@ -167,12 +167,22 @@ function Lobby() {
   const eligibleTargets = state?.players.filter((p) => p.name !== playerName && p.hp > 0) || [];
   const [statusMsg, setStatusMsg] = useState("");
 
-  // Function to play sound with typed soundId
+  // Use a ref to manage a single Audio instance
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Function to stop the current sound and play a new one
   const playSound = (soundId: "gain_hp" | "gain_coin" | "gain_attack" | "attack" | "defend" | "raid") => {
-    const audio = new Audio(soundFiles[soundId]);
-    audio.play().catch((error) => {
-      console.error("Error playing sound:", error);
-    });
+    // Stop the currently playing sound if it exists
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Reset to the beginning
+    }
+
+    // Create a new Audio instance and play the new sound
+    audioRef.current = new Audio(soundFiles[soundId]);
+    audioRef.current
+      .play()
+      .catch((error) => console.error("Error playing sound:", error));
   };
 
   useEffect(() => {
@@ -239,15 +249,23 @@ function Lobby() {
   const isAlive = (state?.players.find((p) => p.name === playerName)?.hp ?? 0) > 0;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
-      <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
-        <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8">
+      {/* Background Image */}
+      <img
+        src="/images/bakgrunn.png"
+        alt="Background"
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-screen-xl flex flex-col items-center gap-6 bg-white/80 backdrop-blur-sm p-4 sm:p-6 md:p-8">
+        <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight">
           Lobby ID: {lobbyId}
         </h2>
         <p className="mb-3 text-lg text-gray-600 font-medium">🌀 Round: {state?.round ?? "?"}</p>
         <p className="mb-6 text-lg text-gray-600 font-medium">🦹‍♂️ Your Name: {playerName}</p>
 
-        <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="w-full bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
           <h3 className="font-semibold text-xl text-gray-800 mb-4">Players in Lobby</h3>
           <ul className="list-disc pl-6 text-gray-700 space-y-2">
             {state?.players.map((p) => (
@@ -263,7 +281,7 @@ function Lobby() {
           </ul>
         </div>
 
-        <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="w-full bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
           <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
           <p className="text-gray-700 flex gap-4">
             <span>
@@ -279,7 +297,7 @@ function Lobby() {
         </div>
 
         {!gameOver && !isDenied && isAlive && (
-          <div className="نه w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="w-full bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="mb-6">
               <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Action</h4>
               <div className="flex flex-wrap gap-3">
@@ -353,12 +371,12 @@ function Lobby() {
         )}
 
         {statusMsg && (
-          <p className="mt-4 text-sm text-gray-600 bg-gray-100 p-4 rounded-lg shadow-inner animate-fade-in mb-6">
+          <p className="w-full text-sm text-gray-600 bg-gray-100 p-4 rounded-lg shadow-inner mb-6">
             {statusMsg}
           </p>
         )}
 
-        <div className="w-full mt-2 mb-6">
+        <div className="w-full mb-6">
           <h3 className="font-semibold text-xl text-gray-800 mb-4 px-6">Round Messages</h3>
           <ul className="list-disc pl-6 text-gray-700 bg-white p-6 rounded-xl shadow-sm space-y-2">
             {messages?.map((m, i) => (
@@ -367,7 +385,7 @@ function Lobby() {
           </ul>
 
           {isChoosingDeny && (
-            <div className="bg-yellow-50 border border-yellow-200 p-6 mt-6 rounded-xl shadow-sm animate-slide-up">
+            <div className="w-full bg-yellow-50 border border-yellow-200 p-6 mt-6 rounded-xl shadow-sm">
               <h3 className="font-semibold text-lg text-yellow-800 mb-4">
                 🛑 Choose someone to deny next round
               </h3>
@@ -405,7 +423,7 @@ function Lobby() {
           )}
 
           {gameOver && (
-            <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
+            <div className="w-full bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm">
               <p className="text-xl font-semibold mb-3">
                 🎉 Game Over! {alivePlayers[0]?.name} has won the game!
               </p>
