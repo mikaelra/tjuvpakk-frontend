@@ -95,7 +95,7 @@ function Home() {
   <img
   src="/images/logo.png" 
   alt="Logo"
-  className="h-40 w-80 sm:h-40 sm:w-80 md:h-40 md:w-80 lg:h-60 lg:w-90 object-contain mb-8"
+  className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
 />
     
 
