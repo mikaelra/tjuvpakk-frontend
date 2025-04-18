@@ -112,16 +112,7 @@ function Home() {
         placeholder="Enter your name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        style={{
-          padding: "10px 20px",
-          margin: "5px",
-          border: "2px solid black",
-          borderRadius: "5px",
-          backgroundColor:  "#ddd",
-          color: "black",
-          fontWeight: "bold",
-          cursor: "pointer",
-        }}
+        className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
       />
       <div className="flex items-center w-64">
         <input
@@ -129,7 +120,7 @@ function Home() {
           placeholder="Lobby code"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}
-          className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none"
+          className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
         />
         <button
           onClick={handleJoin}
