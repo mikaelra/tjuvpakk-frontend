@@ -95,7 +95,7 @@ function Home() {
   <img
   src="/images/logo.png" 
   alt="Logo"
-  className="h-40 w-80 sm:h-40 sm:w-80 md:h-40 md:w-80 lg:h-60 lg:w-90 object-contain mb-8"
+  className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
 />
     
 
@@ -112,7 +112,7 @@ function Home() {
         placeholder="Enter your name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-64 p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none"
+        className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
       />
       <div className="flex items-center w-64">
         <input
@@ -120,26 +120,44 @@ function Home() {
           placeholder="Lobby code"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}
-          className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none"
+          className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
         />
         <button
           onClick={handleJoin}
-          className="p-2 bg-gray-300 text-black rounded-r-md hover:bg-gray-400"
+          style={{
+            padding: "10px 20px",
+            margin: "5px",
+            border: "2px solid black",
+            borderRadius: "5px",
+            backgroundColor:  "#ddd",
+            color: "black",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
         >
           Join
         </button>
       </div>
       <button
         onClick={handleCreate}
-        className="w-64 p-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
+        style={{
+          padding: "10px 20px",
+          margin: "5px",
+          border: "2px solid black",
+          borderRadius: "5px",
+          backgroundColor:  "#ddd",
+          color: "black",
+          fontWeight: "bold",
+          cursor: "pointer",
+        }}
       >
         Create lobby
       </button>
     </div>
     <div className="text-blue-800 underline text-3xl mt-4 text-center">
-    <Link to="/rules">
-  📜 Rules
-  </Link>
+      <Link to="/rules" style={{ color: "gold" }}>
+        📜 Rules 📜
+      </Link>
     </div>
    
   </div>
@@ -224,110 +242,159 @@ function Lobby() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
-      <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
-        <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
-          Lobby ID: {lobbyId}
-        </h2>
-        <p className="mb-3 text-lg text-gray-600 font-medium">
-          🌀 Round: {state?.round ?? "?"}
-        </p>
-        <p className="mb-6 text-lg text-gray-600 font-medium">
-          🦹‍♂️ Your Name: {playerName}
-        </p>
-  
-        <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-xl text-gray-800 mb-4">Players in Lobby</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-2">
-            {state?.players.map(p => (
-              <li key={p.name} className="py-1 flex items-center gap-2">
-                {p.hp <= 0 && <span className="text-red-500">☠️</span>}
-                {(state.winner === p.name || (!state.winner && state.raidwinner === p.name)) && (
-                  <span className="text-yellow-500">👑</span>
-                )}
-                <span className="font-medium">{p.name}</span>
-                {state.readyPlayers?.includes(p.name) && <span className="text-green-500">✅</span>}
-              </li>
-            ))}
-          </ul>
-        </div>
-  
-        <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
-          <p className="text-gray-700 flex gap-4">
-            <span>
-              ❤ <span className="font-semibold text-red-500">{myPlayer?.hp}</span>
-            </span>
-            <span>
-              💰 <span className="font-semibold text-yellow-500">{myPlayer?.coins}</span>
-            </span>
-            <span>
-              ⚔ <span className="font-semibold text-blue-500">{myPlayer?.attackDamage}</span>
-            </span>
+      <div className="fixed top-0 left-0 w-full h-full z-0">      
+        {/* Bakgrunnsbilde Image */}
+        <img
+          src="/images/bakgrunn2.jpg"
+          alt="Background"
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        />
+      </div>
+      <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
+        <div className="w-full max-w-3xl flex flex-col items-center justify-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
+          <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
+            Lobby ID: {lobbyId}
+          </h2>
+          <p className="mb-3 text-lg text-gray-600 font-medium">
+            🌀 Round: {state?.round ?? "?"}
           </p>
-        </div>
-  
-        {!gameOver && !isDenied && isAlive && (
+          <p className="mb-6 text-lg text-gray-600 font-medium">
+            🦹‍♂️ Your Name: {playerName}
+          </p>
+    
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div>
-              <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
-              <div className="flex flex-wrap gap-3">
-              {[
-                { id: "gain_hp", label: "Get ❤" },
-                { id: "gain_coin", label: "Get 💰" },
-                { id: "gain_attack", label: "Buy ⚔" },
-              ].map((res) => (
-                <button
-                  key={res.id}
-                  onClick={async () => {
-                    try {
-                      const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ player: playerName, resource: res.id, action: "" }),
-                      });
-                      const data = await response.json();
-                      if (!response.ok) {
-                        alert(data.error || "API error");
-                      } else {
-                        setResource(res.id);
-                      }
-                    } catch (err) {
-                      alert("Server error");
-                      console.error(err);
-                    }
-                  }}
-                  style={{
-                    padding: "10px 20px",
-                    margin: "5px",
-                    border: "2px solid black",
-                    borderRadius: "5px",
-                    backgroundColor: resource === res.id ? "crimson" : "#ddd",
-                    color: resource === res.id ? "white" : "black",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  {res.label}
-                </button>
+            <h3 className="font-semibold text-xl text-gray-800 mb-4">Players in Lobby</h3>
+            <ul className="list-disc pl-6 text-gray-700 space-y-2">
+              {state?.players.map(p => (
+                <li key={p.name} className="py-1 flex items-center gap-2">
+                  {p.hp <= 0 && <span className="text-red-500">☠️</span>}
+                  {(state.winner === p.name || (!state.winner && state.raidwinner === p.name)) && (
+                    <span className="text-yellow-500">👑</span>
+                  )}
+                  <span className="font-medium">{p.name}</span>
+                  {state.readyPlayers?.includes(p.name) && <span className="text-green-500">✅</span>}
+                </li>
               ))}
-              </div>
-            </div>
-            <div className="mb-6">
-              <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Action</h4>
-              <div className="flex flex-wrap gap-3">
-              {["attack", "defend", "raid"].map((act) => (
-                <button
-                  key={act}
-                  onClick={async () => {
-                    setAction(act);
-                    
-                    // Ikke send med en gang hvis det er "attack" – vent på target
-                    if (act !== "attack") {
+            </ul>
+          </div>
+    
+          <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+            <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
+            <p className="text-gray-700 flex gap-4">
+              <span>
+                ❤ <span className="font-semibold text-red-500">{myPlayer?.hp}</span>
+              </span>
+              <span>
+                💰 <span className="font-semibold text-yellow-500">{myPlayer?.coins}</span>
+              </span>
+              <span>
+                ⚔ <span className="font-semibold text-blue-500">{myPlayer?.attackDamage}</span>
+              </span>
+            </p>
+          </div>
+    
+          {!gameOver && !isDenied && isAlive && (
+            <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div>
+                <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
+                <div className="flex flex-wrap gap-3">
+                {[
+                  { id: "gain_hp", label: "Get ❤" },
+                  { id: "gain_coin", label: "Get 💰" },
+                  { id: "gain_attack", label: "Buy ⚔" },
+                ].map((res) => (
+                  <button
+                    key={res.id}
+                    onClick={async () => {
                       try {
                         const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ player: playerName, action: act, resource: "" }),
+                          body: JSON.stringify({ player: playerName, resource: res.id, action: "" }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                          alert(data.error || "API error");
+                        } else {
+                          setResource(res.id);
+                        }
+                      } catch (err) {
+                        alert("Server error");
+                        console.error(err);
+                      }
+                    }}
+                    style={{
+                      padding: "5px 12px",
+                      margin: "3px",
+                      border: "2px solid black",
+                      borderRadius: "5px",
+                      backgroundColor: resource === res.id ? "crimson" : "#ddd",
+                      color: resource === res.id ? "white" : "black",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {res.label}
+                  </button>
+                ))}
+                </div>
+              </div>
+              <div className="mb-6">
+                <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Action</h4>
+                <div className="flex flex-wrap gap-3">
+                {["attack", "defend", "raid"].map((act) => (
+                  <button
+                    key={act}
+                    onClick={async () => {
+                      setAction(act);
+                      
+                      // Ikke send med en gang hvis det er "attack" – vent på target
+                      if (act !== "attack") {
+                        try {
+                          const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ player: playerName, action: act, resource: "" }),
+                          });
+                          const data = await response.json();
+                          if (!response.ok) alert(data.error || "API error");
+                        } catch (err) {
+                          alert("Server error");
+                          console.error(err);
+                        }
+                      }
+                    }}
+                    style={{
+                      padding: "5px 12px",
+                      margin: "3px",
+                      border: "2px solid black",
+                      borderRadius: "5px",
+                      backgroundColor: action === act ? "crimson" : "#ddd",
+                      color: action === act ? "white" : "black",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {act.toUpperCase()}
+                  </button>
+                ))}
+                  {action === "attack" && (
+                  <select
+                    value={target}
+                    onChange={async (e) => {
+                      const chosen = e.target.value;
+                      setTarget(chosen);
+
+                      try {
+                        const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            player: playerName,
+                            action: "attack",
+                            target: chosen,
+                            resource: ""
+                          }),
                         });
                         const data = await response.json();
                         if (!response.ok) alert(data.error || "API error");
@@ -335,133 +402,104 @@ function Lobby() {
                         alert("Server error");
                         console.error(err);
                       }
-                    }
-                  }}
-                  style={{
-                    padding: "10px 20px",
-                    margin: "5px",
-                    border: "2px solid black",
-                    borderRadius: "5px",
-                    backgroundColor: action === act ? "crimson" : "#ddd",
-                    color: action === act ? "white" : "black",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  {act.toUpperCase()}
-                </button>
+                    }}
+                    style={{
+                      padding: "5px",
+                      border: "2px solid black",
+                      borderRadius: "5px",
+                      backgroundColor: "white",
+                      color: "black",
+                      fontSize: "16px",
+                      margin: "10px 0",
+                      width: "33%", // valgfritt – gjør at det fyller bredden
+                    }}
+                  >
+                    <option value="">Select target</option>
+                      {otherPlayers?.map(p => (
+                        <option key={p.name} value={p.name}>{p.name}</option>
+                      ))}
+                  </select>
+                )}
+                </div>
+              </div>
+            </div>
+          )}
+    
+          {statusMsg && (
+            <p className="mt-4 text-sm text-gray-600 bg-gray-100 p-4 rounded-lg shadow-inner animate-fade-in mb-6">
+              {statusMsg}
+            </p>
+          )}
+    
+          <div className="w-full mt-2 mb-6">
+            <h3 className="font-semibold text-xl text-gray-800 mb-4 px-6">Round Messages</h3>
+            <ul className="list-disc pl-6 text-gray-700 bg-white p-6 rounded-xl shadow-sm space-y-2">
+              {messages?.map((m, i) => (
+                <li key={i} className="py-1">{Array.isArray(m) ? m.join(" ") : m}</li>
               ))}
-                {action === "attack" && (
-                <select
-                  value={target}
-                  onChange={async (e) => {
-                    const chosen = e.target.value;
-                    setTarget(chosen);
-
-                    try {
-                      const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          player: playerName,
-                          action: "attack",
-                          target: chosen,
-                          resource: ""
-                        }),
-                      });
-                      const data = await response.json();
-                      if (!response.ok) alert(data.error || "API error");
-                    } catch (err) {
-                      alert("Server error");
-                      console.error(err);
-                    }
-                  }}
-                >
-                  <option value="">Select target</option>
-                    {otherPlayers?.map(p => (
+            </ul>
+    
+            {isChoosingDeny && (
+              <div className="bg-yellow-50 border border-yellow-200 p-6 mt-6 rounded-xl shadow-sm animate-slide-up">
+                <h3 className="font-semibold text-lg text-yellow-800 mb-4">
+                  🛑 Choose someone to deny next round
+                </h3>
+                <div className="flex gap-4 items-center">
+                  <select
+                    className="border border-gray-200 rounded-lg p-2.5 bg-white text-gray-700 flex-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200"
+                    value={denyTarget}
+                    onChange={e => setDenyTarget(e.target.value)}
+                  >
+                    <option value="">Select player</option>
+                    {eligibleTargets.map(p => (
                       <option key={p.name} value={p.name}>{p.name}</option>
                     ))}
-                </select>
-              )}
+                  </select>
+                  <button
+                    disabled={!denyTarget}
+                    onClick={async () => {
+                      const res = await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ player: playerName, target: denyTarget }),
+                      });
+                      if (res.ok) {
+                        setStatusMsg("🚫 Deny choice submitted!");
+                      } else {
+                        setStatusMsg("❌ Something went wrong submitting deny.");
+                      }
+                    }}
+                    style={{
+                      padding: "10px 20px",
+                      margin: "5px",
+                      border: "2px solid black",
+                      borderRadius: "5px",
+                      backgroundColor:  "#ddd",
+                      color: "black",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Deny
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+    
+            {gameOver && (
+              <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
+                <p className="text-xl font-semibold mb-3">
+                  🎉 Game Over! {alivePlayers[0]?.name} has won the game!
+                </p>
+                <Link
+                  to="/"
+                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+                >
+                  ← Back to Home
+                </Link>
+              </div>
+            )}
           </div>
-        )}
-  
-        {statusMsg && (
-          <p className="mt-4 text-sm text-gray-600 bg-gray-100 p-4 rounded-lg shadow-inner animate-fade-in mb-6">
-            {statusMsg}
-          </p>
-        )}
-  
-        <div className="w-full mt-2 mb-6">
-          <h3 className="font-semibold text-xl text-gray-800 mb-4 px-6">Round Messages</h3>
-          <ul className="list-disc pl-6 text-gray-700 bg-white p-6 rounded-xl shadow-sm space-y-2">
-            {messages?.map((m, i) => (
-              <li key={i} className="py-1">{Array.isArray(m) ? m.join(" ") : m}</li>
-            ))}
-          </ul>
-  
-          {isChoosingDeny && (
-            <div className="bg-yellow-50 border border-yellow-200 p-6 mt-6 rounded-xl shadow-sm animate-slide-up">
-              <h3 className="font-semibold text-lg text-yellow-800 mb-4">
-                🛑 Choose someone to deny next round
-              </h3>
-              <div className="flex gap-4 items-center">
-                <select
-                  className="border border-gray-200 rounded-lg p-2.5 bg-white text-gray-700 flex-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200"
-                  value={denyTarget}
-                  onChange={e => setDenyTarget(e.target.value)}
-                >
-                  <option value="">Select player</option>
-                  {eligibleTargets.map(p => (
-                    <option key={p.name} value={p.name}>{p.name}</option>
-                  ))}
-                </select>
-                <button
-                  disabled={!denyTarget}
-                  onClick={async () => {
-                    const res = await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ player: playerName, target: denyTarget }),
-                    });
-                    if (res.ok) {
-                      setStatusMsg("🚫 Deny choice submitted!");
-                    } else {
-                      setStatusMsg("❌ Something went wrong submitting deny.");
-                    }
-                  }}
-                  style={{
-                    padding: "10px 20px",
-                    margin: "5px",
-                    border: "2px solid black",
-                    borderRadius: "5px",
-                    backgroundColor:  "#ddd",
-                    color: "black",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          )}
-  
-          {gameOver && (
-            <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
-              <p className="text-xl font-semibold mb-3">
-                🎉 Game Over! {alivePlayers[0]?.name} has won the game!
-              </p>
-              <Link
-                to="/"
-                className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-              >
-                ← Back to Home
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     </div>
