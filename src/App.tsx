@@ -171,6 +171,7 @@ function Lobby() {
     setDenyTarget("");
     setTarget("");
     setAction("");
+    setResource("");
   }, [state?.round]);
 
   useEffect(() => {
@@ -200,30 +201,6 @@ function Lobby() {
     }, 2000);
     return () => clearInterval(interval);
   }, [lobbyId, playerName, state?.winner]);
-  
-  const handleSubmit = async () => {
-    if (!action || !resource) {
-      setStatusMsg("Please choose both action and resource.");
-      return;
-  }
-
-  try {
-    const res = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ player: playerName, action, resource, target: target || null })
-    });
-
-    if (res.ok) {
-      setStatusMsg("✅ Choice submitted!");
-    } else {
-      setStatusMsg("⚠️ Something went wrong. Try again.");
-    }
-  } catch (error) {
-    console.error(error);
-    setStatusMsg("🚨 Server error.");
-  }
-};
 
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
@@ -275,68 +252,124 @@ function Lobby() {
   
         {!gameOver && !isDenied && isAlive && (
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="mb-6">
-              <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Action</h4>
-              <div className="flex flex-wrap gap-3">
-                {["attack", "defend", "raid"].map(act => (
-                  <button
-                    key={act}
-                    className={`px-5 py-2.5 rounded-lg font-medium text-sm uppercase tracking-wide transition-all duration-200 transform hover:scale-105 ${
-                      action === act
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                    onClick={() => setAction(act)}
-                  >
-                    {act.charAt(0).toUpperCase() + act.slice(1)}
-                  </button>
-                ))}
-                {action === "attack" && (
-                  <select
-                    className="border border-gray-200 rounded-lg p-2.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    value={target}
-                    onChange={e => setTarget(e.target.value)}
-                  >
-                    <option value="">Select target</option>
-                    {otherPlayers?.map(p => (
-                      <option key={p.name} value={p.name}>{p.name}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
             <div>
               <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
               <div className="flex flex-wrap gap-3">
-                {[
-                  { id: "gain_hp", label: "Get ❤" },
-                  { id: "gain_coin", label: "Get 💰" },
-                  { id: "gain_attack", label: "Get ⚔" },
-                ].map(res => (
-                  <button
-                    key={res.id}
-                    className={`px-5 py-2.5 rounded-lg font-medium text-sm uppercase tracking-wide transition-all duration-200 transform hover:scale-105 ${
-                      resource === res.id
-                        ? "bg-green-600 text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                    onClick={() => setResource(res.id)}
-                  >
-                    {res.label}
-                  </button>
-                ))}
+              {[
+                { id: "gain_hp", label: "Get ❤" },
+                { id: "gain_coin", label: "Get 💰" },
+                { id: "gain_attack", label: "Buy ⚔" },
+              ].map((res) => (
+                <button
+                  key={res.id}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ player: playerName, resource: res.id, action: "" }),
+                      });
+                      const data = await response.json();
+                      if (!response.ok) {
+                        alert(data.error || "API error");
+                      } else {
+                        setResource(res.id);
+                      }
+                    } catch (err) {
+                      alert("Server error");
+                      console.error(err);
+                    }
+                  }}
+                  style={{
+                    padding: "10px 20px",
+                    margin: "5px",
+                    border: "2px solid black",
+                    borderRadius: "5px",
+                    backgroundColor: resource === res.id ? "crimson" : "#ddd",
+                    color: resource === res.id ? "white" : "black",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                >
+                  {res.label}
+                </button>
+              ))}
+              </div>
+            </div>
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Action</h4>
+              <div className="flex flex-wrap gap-3">
+              {["attack", "defend", "raid"].map((act) => (
+                <button
+                  key={act}
+                  onClick={async () => {
+                    setAction(act);
+                    
+                    // Ikke send med en gang hvis det er "attack" – vent på target
+                    if (act !== "attack") {
+                      try {
+                        const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ player: playerName, action: act, resource: "" }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok) alert(data.error || "API error");
+                      } catch (err) {
+                        alert("Server error");
+                        console.error(err);
+                      }
+                    }
+                  }}
+                  style={{
+                    padding: "10px 20px",
+                    margin: "5px",
+                    border: "2px solid black",
+                    borderRadius: "5px",
+                    backgroundColor: action === act ? "crimson" : "#ddd",
+                    color: action === act ? "white" : "black",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                >
+                  {act.toUpperCase()}
+                </button>
+              ))}
+                {action === "attack" && (
+                <select
+                  value={target}
+                  onChange={async (e) => {
+                    const chosen = e.target.value;
+                    setTarget(chosen);
+
+                    try {
+                      const response = await fetch(`${BACKEND_URL}/submit_choice/${lobbyId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          player: playerName,
+                          action: "attack",
+                          target: chosen,
+                          resource: ""
+                        }),
+                      });
+                      const data = await response.json();
+                      if (!response.ok) alert(data.error || "API error");
+                    } catch (err) {
+                      alert("Server error");
+                      console.error(err);
+                    }
+                  }}
+                >
+                  <option value="">Select target</option>
+                    {otherPlayers?.map(p => (
+                      <option key={p.name} value={p.name}>{p.name}</option>
+                    ))}
+                </select>
+              )}
               </div>
             </div>
           </div>
-        )}
-  
-        {!gameOver && !isDenied && isAlive && (
-          <button
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md mb-6"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
         )}
   
         {statusMsg && (
