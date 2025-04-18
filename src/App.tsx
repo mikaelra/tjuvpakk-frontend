@@ -252,10 +252,6 @@ function Lobby() {
       </div>
       <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
         <div className="w-full max-w-3xl flex flex-col items-center justify-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
-          {/* Soundtrack Button in Top-Right Corner */}
-          <div className="absolute top-16 left-4 z-20">
-            <SoundtrackButton />
-          </div>
           <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
             Lobby ID: {lobbyId}
           </h2>
