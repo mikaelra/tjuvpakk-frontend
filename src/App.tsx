@@ -175,32 +175,48 @@ function Lobby() {
   }, [state?.round]);
 
   useEffect(() => {
-    if (state?.winner) return; // ✅ Game is over – stop polling
-    
-    const interval = setInterval(async () => {
+    if (state?.winner) return;
+    const fetchState = async () => {
       try {
-        const res1 = await fetch(`${BACKEND_URL}/get_state/${lobbyId}`);
-        if (!res1.ok) {
-          console.warn("get_state feilet med status:", res1.status);
+        const res = await fetch(`${BACKEND_URL}/get_state/${lobbyId}`);
+        if (!res.ok) {
+          console.warn("get_state feilet med status:", res.status);
           return;
         }
-        const json1: LobbyState = await res1.json();
-        setState(json1);
+        const json: LobbyState = await res.json();
+        setState(json);
       } catch (error) {
         console.error("Feil ved get_state:", error);
       }
-    
+    };
+  
+    fetchState(); // en gang når round endres
+
+    // Poller state hvert 2. sekund
+    const interval = setInterval(() => {
+      if (!state?.winner) {
+        fetchState();
+      }
+    }, 2000);
+  
+    return () => clearInterval(interval);
+  }, [state?.round, lobbyId, playerName, state?.winner]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
       try {
-        const res2 = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
-        if (!res2.ok) return;
-        const json2 = await res2.json();
-        setMessages(json2.messages);
+        const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        setMessages(json.messages);
       } catch (error) {
         console.error("Feil ved get_player_messages:", error);
       }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [lobbyId, playerName, state?.winner]);
+    };
+  
+    fetchMessages();
+
+  }, [state?.round, lobbyId, playerName, isDenied]);
 
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
@@ -403,7 +419,6 @@ function Lobby() {
                   ))}
                 </select>
                 <button
-                  className="bg-red-500 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 disabled:bg-red-300 disabled:cursor-not-allowed"
                   disabled={!denyTarget}
                   onClick={async () => {
                     const res = await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
@@ -416,6 +431,16 @@ function Lobby() {
                     } else {
                       setStatusMsg("❌ Something went wrong submitting deny.");
                     }
+                  }}
+                  style={{
+                    padding: "10px 20px",
+                    margin: "5px",
+                    border: "2px solid black",
+                    borderRadius: "5px",
+                    backgroundColor:  "#ddd",
+                    color: "black",
+                    fontWeight: "bold",
+                    cursor: "pointer",
                   }}
                 >
                   Deny
