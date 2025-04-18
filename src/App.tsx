@@ -403,6 +403,16 @@ function Lobby() {
                         console.error(err);
                       }
                     }}
+                    style={{
+                      padding: "5px",
+                      border: "2px solid black",
+                      borderRadius: "5px",
+                      backgroundColor: "white",
+                      color: "black",
+                      fontSize: "16px",
+                      margin: "10px 0",
+                      width: "33%", // valgfritt – gjør at det fyller bredden
+                    }}
                   >
                     <option value="">Select target</option>
                       {otherPlayers?.map(p => (
