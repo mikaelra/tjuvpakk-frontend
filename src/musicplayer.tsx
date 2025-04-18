@@ -81,7 +81,7 @@ const SoundtrackButton: React.FC = () => {
               d="M10 9v6m4-6v6m0-6v6m-4-6v6"
             />
           </svg>
-          <span className='text-black'>Pause</span>
+          <span className='text-black'>Music</span>
         </>
       ) : (
         <>
@@ -99,7 +99,7 @@ const SoundtrackButton: React.FC = () => {
               d="M14.752 11.168l-6.336-3.664A1 1 0 007 8.464v7.072a1 1 0 001.416.896l6.336-3.664a1 1 0 000-1.792z"
             />
           </svg>
-          <span className='text-black'>Play</span>
+          <span className='text-black'>Music</span>
         </>
       )}
     </button>
