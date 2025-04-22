@@ -2,8 +2,17 @@ import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 import SoundtrackButton from "./musicplayer"
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+import RulesForNerds from "./rules/Rules-for-nerds-first";
+import RulesForNerds2 from "./rules/Rules-for-nerds-2";
+import RulesForNerds3 from "./rules/Rules-for-nerds-3";
+import RulesForNerds4 from "./rules/Rules-for-nerds-4";
+import RulesForNerds5 from "./rules/Rules-for-nerds-5";
+import RulesForNerds6 from "./rules/Rules-for-nerds-6";
+import RulesForNerds7 from "./rules/Rules-for-nerds-7";
+import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
+
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -30,6 +39,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/rules" element={<Rules />} />
+        <Route path="/rules/p1" element={<RulesForNerds />} />
+        <Route path="/rules/p2" element={<RulesForNerds2 />} />
+        <Route path="/rules/p3" element={<RulesForNerds3 />} />
+        <Route path="/rules/p4" element={<RulesForNerds4 />} />
+        <Route path="/rules/p5" element={<RulesForNerds5 />} />
+        <Route path="/rules/p6" element={<RulesForNerds6 />} />
+        <Route path="/rules/p7" element={<RulesForNerds7 />} />
+        <Route path="/rules/p8" element={<RulesForNerdsLast />} />
         <Route path="/lobby/:lobbyId" element={<Lobby />} />
       </Routes>
     </Router>
@@ -159,7 +176,11 @@ function Home() {
         📜 Rules 📜
       </Link>
     </div>
-   
+    <div className="text-blue-800 underline text-3xl mt-2 text-center">
+      <Link to="/rules/p1" style={{ color: "gold", fontSize : "24px"}}>
+        📜 Rules For Nerds 📜
+      </Link>
+    </div>
   </div>
 </div>
   );
