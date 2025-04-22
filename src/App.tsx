@@ -11,8 +11,8 @@ import RulesForNerds6 from "./rules/Rules-for-nerds-6";
 import RulesForNerds7 from "./rules/Rules-for-nerds-7";
 import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
 
-//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
