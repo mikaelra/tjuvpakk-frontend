@@ -323,6 +323,33 @@ function Lobby() {
               ))}
             </ul>
           </div>
+          {isAdmin && state?.round === 0 && (
+            <button
+              onClick={async () => {
+                const res = await fetch(`${BACKEND_URL}/start_game/${lobbyId}`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ admin: playerName }),
+                });
+                if (!res.ok) {
+                  const data = await res.json();
+                  alert(data.error || "Failed to start game");
+                }
+              }}
+              style={{
+                padding: "10px 20px",
+                margin: "20px",
+                border: "2px solid black",
+                borderRadius: "8px",
+                backgroundColor: "goldenrod",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              🚀 Start Game
+            </button>
+          )}
     
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
@@ -339,7 +366,7 @@ function Lobby() {
             </p>
           </div>
     
-          {!gameOver && !isDenied && isAlive && (
+          {!gameOver && !isDenied && isAlive && state?.round !== 0 && (
             <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
               <div>
                 <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
