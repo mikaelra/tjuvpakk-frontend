@@ -16,6 +16,7 @@ const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
+  admin: boolean;
   hp: number;
   coins: number;
   attackDamage: number;
@@ -194,6 +195,7 @@ function Lobby() {
   const [action, setAction] = useState<string>("");
   const [resource, setResource] = useState<string>("");
   const [target, setTarget] = useState<string>("");
+
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
   const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
   const [denyTarget, setDenyTarget] = useState("");
@@ -260,6 +262,7 @@ function Lobby() {
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
   const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
+  const isAdmin = myPlayer?.admin
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
@@ -293,6 +296,28 @@ function Lobby() {
                     <span className="text-yellow-500">👑</span>
                   )}
                   <span className="font-medium">{p.name}</span>
+                  {isAdmin && p.name !== playerName && p.hp > 0 && (
+                    <span
+                      className="ml-2 text-red-500 text-sm cursor-pointer"
+                      title="Kick player"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`${BACKEND_URL}/kick_player/${lobbyId}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ admin: playerName, target: p.name }),
+                          });
+                          if (!res.ok) {
+                            const errorData = await res.json();
+                            alert(errorData.error);
+                            return;
+                          }
+                        } catch (error) {
+                          alert(error)
+                        }
+                      }}
+                    >❌</span>
+                  )}
                   {state.readyPlayers?.includes(p.name) && <span className="text-green-500">✅</span>}
                 </li>
               ))}
