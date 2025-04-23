@@ -11,8 +11,8 @@ import RulesForNerds6 from "./rules/Rules-for-nerds-6";
 import RulesForNerds7 from "./rules/Rules-for-nerds-7";
 import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
 
-//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -32,6 +32,7 @@ interface LobbyState {
   pending_deny: string | null;
   deny_target: string | null;
   readyPlayers: string[];
+  round_end_time: number | null;
 }
 
 export default function App() {
@@ -206,6 +207,26 @@ function Lobby() {
   const eligibleTargets = state?.players.filter(p => p.name !== playerName && p.hp > 0) || [];
 
   const [statusMsg, setStatusMsg] = useState("");
+
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!state?.round_end_time) {
+      setSecondsLeft(null);
+      return;
+    }
+  
+    const interval = setInterval(() => {
+      const now = Date.now() / 1000;
+      const endTime = state.round_end_time ?? 0; // fallback, selv om vi vet den finnes
+  
+      const remaining = Math.max(0, Math.floor(endTime - now));
+      setSecondsLeft(remaining);
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [state?.round_end_time]);
+
   useEffect(() => {
     // Nullstill statusmelding når ny runde starter
     setStatusMsg("");
@@ -296,7 +317,7 @@ function Lobby() {
                     <span className="text-yellow-500">👑</span>
                   )}
                   <span className="font-medium">{p.name}</span>
-                  {isAdmin && p.name !== playerName && p.hp > 0 && (
+                  {isAdmin && p.name !== playerName && p.hp > 0 && state?.round === 0 && (
                     <span
                       className="ml-2 text-red-500 text-sm cursor-pointer"
                       title="Kick player"
@@ -496,6 +517,14 @@ function Lobby() {
                 </div>
               </div>
             </div>
+          )}
+
+          {secondsLeft !== null && secondsLeft <= 20 && !gameOver &&(
+            <p className={`mb-2 text-lg font-semibold ${
+              secondsLeft !== null && secondsLeft <= 10 ? "text-red-700 animate-pulse" : "text-red-600"
+            }`}>
+              ⏳ Time left: {secondsLeft}s
+            </p>
           )}
     
           {statusMsg && (
