@@ -1,0 +1,37 @@
+import { Link } from "react-router-dom";
+
+export default function RulesForNerds() {
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
+      {/* Bakgrunnsbilde Image */}
+      <img
+        src="/images/parchment.png"
+        alt="Background"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100vw", // Full viewport width
+          height: "100vh", // Full viewport height
+          objectFit: "cover", // Scale to cover
+          zIndex: 0,
+        }}
+      />
+      <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
+        <img
+          src="/images/rules/rulesp1.svg"
+          alt="Tjuvpakk Rules"
+          style={{ maxWidth: "800px", width: "100%", margin: "0 auto", display: "block" }}
+        />
+        <div className="mt-4">
+          <Link to="/" className="underline text-blue-600" style={{ fontSize: "2rem", marginRight: "20px" }}>
+            ← Back to Home 🏠
+          </Link>
+        <Link to="/rules/p2" className="underline text-blue-600" style={{ fontSize: "2rem" }}>
+            Next page → 
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

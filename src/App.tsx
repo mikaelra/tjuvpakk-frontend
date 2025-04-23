@@ -2,11 +2,21 @@ import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 import SoundtrackButton from "./musicplayer"
+import RulesForNerds from "./rules/Rules-for-nerds-first";
+import RulesForNerds2 from "./rules/Rules-for-nerds-2";
+import RulesForNerds3 from "./rules/Rules-for-nerds-3";
+import RulesForNerds4 from "./rules/Rules-for-nerds-4";
+import RulesForNerds5 from "./rules/Rules-for-nerds-5";
+import RulesForNerds6 from "./rules/Rules-for-nerds-6";
+import RulesForNerds7 from "./rules/Rules-for-nerds-7";
+import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
+
 const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
 //const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
+  admin: boolean;
   hp: number;
   coins: number;
   attackDamage: number;
@@ -22,6 +32,7 @@ interface LobbyState {
   pending_deny: string | null;
   deny_target: string | null;
   readyPlayers: string[];
+  round_end_time: number | null;
 }
 
 export default function App() {
@@ -30,6 +41,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/rules" element={<Rules />} />
+        <Route path="/rules/p1" element={<RulesForNerds />} />
+        <Route path="/rules/p2" element={<RulesForNerds2 />} />
+        <Route path="/rules/p3" element={<RulesForNerds3 />} />
+        <Route path="/rules/p4" element={<RulesForNerds4 />} />
+        <Route path="/rules/p5" element={<RulesForNerds5 />} />
+        <Route path="/rules/p6" element={<RulesForNerds6 />} />
+        <Route path="/rules/p7" element={<RulesForNerds7 />} />
+        <Route path="/rules/p8" element={<RulesForNerdsLast />} />
         <Route path="/lobby/:lobbyId" element={<Lobby />} />
       </Routes>
     </Router>
@@ -77,7 +96,7 @@ function Home() {
   };
 
   return (
-  <div className="relative w-screen h-screen flex flex-col items-center justify-center text-white overflow-hidden">
+  <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
   {/* Bakgrunnsbilde Image */}
   <img
     src="/images/bakgrunn.png"
@@ -159,7 +178,11 @@ function Home() {
         📜 Rules 📜
       </Link>
     </div>
-   
+    <div className="text-blue-800 underline text-3xl mt-2 text-center">
+      <Link to="/rules/p1" style={{ color: "gold", fontSize : "24px"}}>
+        📜 Rules For Nerds 📜
+      </Link>
+    </div>
   </div>
 </div>
   );
@@ -173,6 +196,7 @@ function Lobby() {
   const [action, setAction] = useState<string>("");
   const [resource, setResource] = useState<string>("");
   const [target, setTarget] = useState<string>("");
+
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
   const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
   const [denyTarget, setDenyTarget] = useState("");
@@ -183,6 +207,26 @@ function Lobby() {
   const eligibleTargets = state?.players.filter(p => p.name !== playerName && p.hp > 0) || [];
 
   const [statusMsg, setStatusMsg] = useState("");
+
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!state?.round_end_time) {
+      setSecondsLeft(null);
+      return;
+    }
+  
+    const interval = setInterval(() => {
+      const now = Date.now() / 1000;
+      const endTime = state.round_end_time ?? 0; // fallback, selv om vi vet den finnes
+  
+      const remaining = Math.max(0, Math.floor(endTime - now));
+      setSecondsLeft(remaining);
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [state?.round_end_time]);
+
   useEffect(() => {
     // Nullstill statusmelding når ny runde starter
     setStatusMsg("");
@@ -239,6 +283,7 @@ function Lobby() {
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
   const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
+  const isAdmin = myPlayer?.admin
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
@@ -272,11 +317,60 @@ function Lobby() {
                     <span className="text-yellow-500">👑</span>
                   )}
                   <span className="font-medium">{p.name}</span>
+                  {isAdmin && p.name !== playerName && p.hp > 0 && state?.round === 0 && (
+                    <span
+                      className="ml-2 text-red-500 text-sm cursor-pointer"
+                      title="Kick player"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`${BACKEND_URL}/kick_player/${lobbyId}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ admin: playerName, target: p.name }),
+                          });
+                          if (!res.ok) {
+                            const errorData = await res.json();
+                            alert(errorData.error);
+                            return;
+                          }
+                        } catch (error) {
+                          alert(error)
+                        }
+                      }}
+                    >❌</span>
+                  )}
                   {state.readyPlayers?.includes(p.name) && <span className="text-green-500">✅</span>}
                 </li>
               ))}
             </ul>
           </div>
+          {isAdmin && state?.round === 0 && (
+            <button
+              onClick={async () => {
+                const res = await fetch(`${BACKEND_URL}/start_game/${lobbyId}`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ admin: playerName }),
+                });
+                if (!res.ok) {
+                  const data = await res.json();
+                  alert(data.error || "Failed to start game");
+                }
+              }}
+              style={{
+                padding: "10px 20px",
+                margin: "20px",
+                border: "2px solid black",
+                borderRadius: "8px",
+                backgroundColor: "goldenrod",
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              🚀 Start Game
+            </button>
+          )}
     
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
@@ -293,7 +387,7 @@ function Lobby() {
             </p>
           </div>
     
-          {!gameOver && !isDenied && isAlive && (
+          {!gameOver && !isDenied && isAlive && state?.round !== 0 && (
             <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
               <div>
                 <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
@@ -423,6 +517,14 @@ function Lobby() {
                 </div>
               </div>
             </div>
+          )}
+
+          {secondsLeft !== null && secondsLeft <= 20 && !gameOver &&(
+            <p className={`mb-2 text-lg font-semibold ${
+              secondsLeft !== null && secondsLeft <= 10 ? "text-red-700 animate-pulse" : "text-red-600"
+            }`}>
+              ⏳ Time left: {secondsLeft}s
+            </p>
           )}
     
           {statusMsg && (
