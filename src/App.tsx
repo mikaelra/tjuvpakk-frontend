@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
 import SoundtrackButton from "./musicplayer"
+import SoundtrackButtonLobby from "./musicplayer_lobby"
 import RulesForNerds from "./rules/Rules-for-nerds-first";
 import RulesForNerds2 from "./rules/Rules-for-nerds-2";
 import RulesForNerds3 from "./rules/Rules-for-nerds-3";
@@ -22,6 +23,7 @@ interface Player {
   attackDamage: number;
   alive: boolean;
   messages: (string | string[])[];
+  idle_rounds: number;
 }
 
 interface LobbyState {
@@ -295,6 +297,10 @@ function Lobby() {
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         />
       </div>
+      {/* Soundtrack Button in Top-Right Corner */}
+      <div className="absolute top-4 right-4 z-20">
+        <SoundtrackButtonLobby />
+      </div>
       <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
         <div className="w-full max-w-3xl flex flex-col items-center justify-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
           <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
@@ -340,6 +346,7 @@ function Lobby() {
                     >❌</span>
                   )}
                   {state.readyPlayers?.includes(p.name) && <span className="text-green-500">✅</span>}
+                  {p.idle_rounds >= 2 && <span className="text-gray-400">👻</span>}
                 </li>
               ))}
             </ul>
