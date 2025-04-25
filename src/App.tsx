@@ -11,9 +11,10 @@ import RulesForNerds5 from "./rules/Rules-for-nerds-5";
 import RulesForNerds6 from "./rules/Rules-for-nerds-6";
 import RulesForNerds7 from "./rules/Rules-for-nerds-7";
 import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
+import FloatingMessage from "./FloatingMessage";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -212,6 +213,8 @@ function Lobby() {
 
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
+  const [floatingMessages, setFloatingMessages] = useState<string[]>([]);
+
   useEffect(() => {
     if (!state?.round_end_time) {
       setSecondsLeft(null);
@@ -272,14 +275,23 @@ function Lobby() {
         const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
         if (!res.ok) return;
         const json = await res.json();
-        setMessages(json.messages);
+        const newMsgs: string[][] = json.messages || [];
+        console.log("json.messages", newMsgs);
+
+        // Hvis det er nye meldinger, vis dem som én gruppe
+        const newFlat = newMsgs.flat().join("\n");
+        const currentFlat = messages.flat().join("\n");
+
+        if (newFlat !== currentFlat) {
+          setFloatingMessages((prev) => [...prev, newFlat]);
+          setMessages(newMsgs);
+        }
       } catch (error) {
         console.error("Feil ved get_player_messages:", error);
       }
     };
   
     fetchMessages();
-
   }, [state?.round, lobbyId, playerName, isDenied]);
 
   const myPlayer = state?.players.find(p => p.name === playerName);
@@ -378,6 +390,15 @@ function Lobby() {
               🚀 Start Game
             </button>
           )}
+          {floatingMessages.map((msg, idx) => (
+            <FloatingMessage
+              key={idx}
+              message={msg}
+              onDone={() => {
+                setFloatingMessages((prev) => prev.filter((_, i) => i !== idx));
+              }}
+            />
+          ))}
     
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
@@ -539,7 +560,6 @@ function Lobby() {
               {statusMsg}
             </p>
           )}
-    
           <div className="w-full mt-2 mb-6">
             <h3 className="font-semibold text-xl text-gray-800 mb-4 px-6">Round Messages</h3>
             <ul className="list-disc pl-6 text-gray-700 bg-white p-6 rounded-xl shadow-sm space-y-2">
