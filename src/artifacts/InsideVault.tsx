@@ -189,6 +189,12 @@ export default function InsideVault({ vaultResult }: { vaultResult: { first: boo
             <p>The code is '{vaultCode}' and '{vaultResult.og_keyfinder}'.</p>
             </div>
             )}
+            <img
+              src="/images/artifacts/Elements.svg"
+              alt="Artifact"
+              style={{ maxWidth: "800px", width: "100%", margin: "0 auto", display: "block" }}
+            />
+
           </>
         )}
         {error && <p style={{ marginTop: "20px", color: "red" }}>{error}</p>}
