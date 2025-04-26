@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SoundtrackButtonRules from "../music/SoundtrackButtonRules"
 
 export default function Rules() {
   return (
@@ -9,6 +10,9 @@ export default function Rules() {
             alt="Background"
             className="absolute top-0 left-0 w-full h-full object-cover z-0"
           />
+      <div className="absolute top-4 right-4 z-20">
+        <SoundtrackButtonRules />
+      </div>
       <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
         <img
           src="/images/rules.svg"
