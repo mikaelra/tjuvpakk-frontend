@@ -6,7 +6,7 @@ export default function Leaderboards() {
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
       {/* Bakgrunnsbilde Image */}
       <img
-        src="/images/parchment.png"
+        src="/images/leaderboards.png"
         alt="Background"
         style={{
           position: "absolute",

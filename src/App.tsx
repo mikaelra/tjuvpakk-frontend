@@ -15,8 +15,7 @@ import FloatingMessage from "./FloatingMessage";
 import TheVault from "./artifacts/TheVault";
 import Leaderboards from "./Leaderboards";
 
-//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+import { BACKEND_URL } from "./config";
 
 interface Player {
   name: string;

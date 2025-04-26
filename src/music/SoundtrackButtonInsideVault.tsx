@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 
-const SoundtrackButtonRules: React.FC = () => {
+const SoundtrackButtonInsideVault: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Preload audio to minimize buffering
-    audioRef.current = new Audio('/music/wanderer-228697.mp3');
+    audioRef.current = new Audio('/music/the-alchemistx27s-dream-194062.mp3');
     audioRef.current.preload = 'auto'; // Preload the audio
     audioRef.current.loop = true; // Enable looping
 
@@ -115,4 +115,4 @@ const SoundtrackButtonRules: React.FC = () => {
   );
 };
 
-export default SoundtrackButtonRules;
+export default SoundtrackButtonInsideVault;

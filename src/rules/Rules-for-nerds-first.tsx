@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SoundtrackButtonVault from "../music/SoundtrackButtonInsideVault"
 
 export default function RulesForNerds() {
   return (
@@ -17,6 +18,9 @@ export default function RulesForNerds() {
           zIndex: 0,
         }}
       />
+      <div className="absolute top-4 right-4 z-20">
+        <SoundtrackButtonVault />
+      </div>
       <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
         <img
           src="/images/rules/rulesp1.svg"
