@@ -607,11 +607,12 @@ function Lobby() {
                   <button
                     disabled={!denyTarget}
                     onClick={async () => {
-                      const res = await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
+                      await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ player: playerName, target: denyTarget }),
                       });
+                      
                     }}
                     style={{
                       padding: "10px 20px",
