@@ -180,7 +180,7 @@ export default function InsideVault({ vaultResult }: { vaultResult: { first: boo
               </>
             )}
             <p style={{ marginTop: "20px" }}>
-              Someone has already found the vault. You can share the vault code freely!
+            You can share the vault code freely!
             </p>
             <p>{vaultResult.seen_before} players have been in the vault before you.</p>
             {(vaultResult.og_keyfinder !== "") && (

@@ -6,7 +6,7 @@ const SoundtrackButtonInsideVault: React.FC = () => {
 
   useEffect(() => {
     // Preload audio to minimize buffering
-    audioRef.current = new Audio('/music/the-alchemistx27s-dream-194062.mp3');
+    audioRef.current = new Audio('/music/delete-35-175902.mp3');
     audioRef.current.preload = 'auto'; // Preload the audio
     audioRef.current.loop = true; // Enable looping
 

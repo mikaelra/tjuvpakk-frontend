@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import SoundtrackButtonVault from "../music/SoundtrackButtonInsideVault";
+import SoundtrackButtonVault from "../music/SoundtrackButtonVault";
 import InsideVault from "./InsideVault";
 import { BACKEND_URL } from "../config"; // Importer riktig BACKEND_URL
 
