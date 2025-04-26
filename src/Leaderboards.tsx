@@ -65,12 +65,14 @@ function LeaderboardSection({ title, players, statKey }: { title: string; player
   return (
     <div className="mb-8 w-full">
       <h2 className="text-2xl font-semibold mb-4">{title}</h2>
-      {players.map((p, idx) => (
-        <div key={idx} className="flex justify-between items-center bg-white rounded-lg p-4 shadow mb-2">
-          <span className="font-bold">{idx + 1}. {p.name}</span>
-          <span className="text-gray-600">{p[statKey]}</span>
-        </div>
-      ))}
+      <ul className="bg-white rounded-lg shadow p-4 space-y-2">
+        {players.map((p, idx) => (
+          <li key={idx} className="flex justify-between items-center border-b last:border-b-0 pb-2">
+            <span className="font-bold">{idx + 1}. {p.name}</span>
+            <span className="text-gray-600">{p[statKey]}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
