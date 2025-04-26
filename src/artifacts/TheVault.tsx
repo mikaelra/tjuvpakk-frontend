@@ -54,7 +54,10 @@ export default function TheVault() {
       <div className="absolute top-4 right-4 z-20">
         <SoundtrackButtonVault />
       </div>
-      <div className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
+      <div
+  className="w-full max-w-3xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300"
+  style={{ color: "black" }}
+>
         <h3 className="font-semibold text-xl text-gray-800 mb-4">The Vault of Artifacts</h3>
         <p>In this vault lies ancient artifacts.</p>
         <p>Relics of the past.</p>
