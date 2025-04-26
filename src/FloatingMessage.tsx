@@ -13,17 +13,20 @@ export default function FloatingMessage({
     const t = setTimeout(() => {
       setVisible(false);
       setTimeout(onDone, 800);
-    }, 4000);
+    }, 2500);
     return () => clearTimeout(t);
   }, []);
 
   return (
     <div
-      className={`fixed z-50 pointer-events-none left-1/2 top-1/3 -translate-x-1/2 px-8 py-4 text-xl sm:text-2xl max-w-[80vw] text-center whitespace-pre-line rounded-xl font-bold bg-black/90 text-white shadow-xl transition-all duration-700 ${
-        visible ? "opacity-100 scale-100" : "opacity-0 translate-y-20 scale-90"
+      className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all duration-700 ${
+        visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
       }`}
     >
-      {message}
+      <div className="bg-white text-gray-700 px-6 py-6 rounded-2xl shadow-2xl max-w-3xl w-full mx-4 text-center font-sans space-y-6 border-2 border-gray-300">
+        <h3 className="font-semibold text-2xl text-gray-800">Round Messages</h3>
+        <div className="text-lg sm:text-xl whitespace-pre-line">{message}</div>
+      </div>
     </div>
   );
 }
