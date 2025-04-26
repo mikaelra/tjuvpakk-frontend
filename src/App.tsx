@@ -11,9 +11,10 @@ import RulesForNerds5 from "./rules/Rules-for-nerds-5";
 import RulesForNerds6 from "./rules/Rules-for-nerds-6";
 import RulesForNerds7 from "./rules/Rules-for-nerds-7";
 import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
+import FloatingMessage from "./FloatingMessage";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -208,9 +209,9 @@ function Lobby() {
   const isChoosingDeny = state?.pending_deny === playerName;
   const eligibleTargets = state?.players.filter(p => p.name !== playerName && p.hp > 0) || [];
 
-  const [statusMsg, setStatusMsg] = useState("");
-
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  const [floatingMessages, setFloatingMessages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!state?.round_end_time) {
@@ -231,7 +232,6 @@ function Lobby() {
 
   useEffect(() => {
     // Nullstill statusmelding når ny runde starter
-    setStatusMsg("");
     setDenyTarget("");
     setTarget("");
     setAction("");
@@ -269,18 +269,48 @@ function Lobby() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        setMessages([]);
         const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
         if (!res.ok) return;
         const json = await res.json();
-        setMessages(json.messages);
+        const newMsgs: string[][] = json.messages || [];
+        console.log("json.messages", newMsgs);
+
+        // Hvis det er nye meldinger, vis dem som én gruppe
+        const newFlat = newMsgs.flat().join("\n");
+        const currentFlat = messages.flat().join("\n");
+
+        if (newFlat !== currentFlat) {
+          setFloatingMessages((prev) => [...prev, newFlat]);
+          setTimeout(() => {
+            setMessages(newMsgs);
+          }, 2500); // 2500 millisekunder = 2.5 sekunder
+        }
       } catch (error) {
         console.error("Feil ved get_player_messages:", error);
       }
     };
   
     fetchMessages();
-
   }, [state?.round, lobbyId, playerName, isDenied]);
+  
+  // useEffect(() => {
+  //   if (floatingMessages.length === 0) {
+  //     const fetchMessages = async () => {
+  //       try {
+  //         const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
+  //         if (!res.ok) return;
+  //         const json = await res.json();
+  //         setMessages(json.messages || []);
+  //       } catch (error) {
+  //         console.error("Feil ved henting av meldinger etter FloatingMessage:", error);
+  //       }
+  //     };
+  
+  //     fetchMessages();
+  //   }
+  // }, [floatingMessages.length, lobbyId, playerName]);
+  
 
   const myPlayer = state?.players.find(p => p.name === playerName);
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
@@ -378,6 +408,15 @@ function Lobby() {
               🚀 Start Game
             </button>
           )}
+          {floatingMessages.map((msg, idx) => (
+            <FloatingMessage
+              key={idx}
+              message={msg}
+              onDone={() => {
+                setFloatingMessages((prev) => prev.filter((_, i) => i !== idx));
+              }}
+            />
+          ))}
     
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
@@ -533,21 +572,24 @@ function Lobby() {
               ⏳ Time left: {secondsLeft}s
             </p>
           )}
-    
-          {statusMsg && (
-            <p className="mt-4 text-sm text-gray-600 bg-gray-100 p-4 rounded-lg shadow-inner animate-fade-in mb-6">
-              {statusMsg}
-            </p>
-          )}
-    
-          <div className="w-full mt-2 mb-6">
+          <div
+  className={`w-full mt-2 mb-6 transition-opacity ${
+    floatingMessages.length > 0 ? "opacity-0 duration-0" : "opacity-100 duration-1000"
+  }`}
+>
+          <div 
+            key={messages.length}
+            className="w-full mt-2 mb-6 animate-fade-in">
             <h3 className="font-semibold text-xl text-gray-800 mb-4 px-6">Round Messages</h3>
             <ul className="list-disc pl-6 text-gray-700 bg-white p-6 rounded-xl shadow-sm space-y-2">
               {messages?.map((m, i) => (
                 <li key={i} className="py-1">{Array.isArray(m) ? m.join(" ") : m}</li>
               ))}
             </ul>
+          </div>
     
+    
+          </div>
             {isChoosingDeny && (
               <div className="bg-yellow-50 border border-yellow-200 p-6 mt-6 rounded-xl shadow-sm animate-slide-up">
                 <h3 className="font-semibold text-lg text-yellow-800 mb-4">
@@ -567,16 +609,12 @@ function Lobby() {
                   <button
                     disabled={!denyTarget}
                     onClick={async () => {
-                      const res = await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
+                      await fetch(`${BACKEND_URL}/submit_deny_target/${lobbyId}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ player: playerName, target: denyTarget }),
                       });
-                      if (res.ok) {
-                        setStatusMsg("🚫 Deny choice submitted!");
-                      } else {
-                        setStatusMsg("❌ Something went wrong submitting deny.");
-                      }
+                      
                     }}
                     style={{
                       padding: "10px 20px",
@@ -594,7 +632,6 @@ function Lobby() {
                 </div>
               </div>
             )}
-    
             {gameOver && (
               <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
                 <p className="text-xl font-semibold mb-3">
@@ -608,7 +645,6 @@ function Lobby() {
                 </Link>
               </div>
             )}
-          </div>
         </div>
       </div>
     </div>
