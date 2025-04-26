@@ -43,7 +43,8 @@ export default function Leaderboards() {
         <SoundtrackButtonLeaderboards />
       </div>
 
-      <div className="w-full max-w-4xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm p-8 z-10">
+      <div className="w-full max-w-4xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm p-8 z-10"
+            style={{ color: "black" }}>
         <h1 className="text-3xl font-bold mb-6">🏆 Leaderboards 🏆</h1>
 
         <LeaderboardSection title="Top 5 Most Wins" players={leaderboard.top_wins} statKey="wins" />
