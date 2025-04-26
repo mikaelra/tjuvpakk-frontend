@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Rules from "./rules/Rules";
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams, Link } from "react-router-dom";
-import SoundtrackButton from "./musicplayer"
-import SoundtrackButtonLobby from "./musicplayer_lobby"
+import SoundtrackButton from "./music/musicplayer"
+import SoundtrackButtonLobby from "./music/musicplayer_lobby"
 import RulesForNerds from "./rules/Rules-for-nerds-first";
 import RulesForNerds2 from "./rules/Rules-for-nerds-2";
 import RulesForNerds3 from "./rules/Rules-for-nerds-3";
@@ -12,9 +12,11 @@ import RulesForNerds6 from "./rules/Rules-for-nerds-6";
 import RulesForNerds7 from "./rules/Rules-for-nerds-7";
 import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
 import FloatingMessage from "./FloatingMessage";
+import TheVault from "./artifacts/TheVault";
+import Leaderboards from "./Leaderboards";
 
-const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
-//const BACKEND_URL = "http://localhost:5000"; // OFFLINE
+//const BACKEND_URL = "https://tjuvpakk-backend.onrender.com"; //ONLINE
+const BACKEND_URL = "http://localhost:5000"; // OFFLINE
 
 interface Player {
   name: string;
@@ -53,6 +55,8 @@ export default function App() {
         <Route path="/rules/p7" element={<RulesForNerds7 />} />
         <Route path="/rules/p8" element={<RulesForNerdsLast />} />
         <Route path="/lobby/:lobbyId" element={<Lobby />} />
+        <Route path="/vault" element ={<TheVault/>} />
+        <Route path="/leaderboards" element ={<Leaderboards/>} />
       </Routes>
     </Router>
   );
@@ -184,6 +188,16 @@ function Home() {
     <div className="text-blue-800 underline text-3xl mt-2 text-center">
       <Link to="/rules/p1" style={{ color: "gold", fontSize : "24px"}}>
         📜 Rules For Nerds 📜
+      </Link>
+    </div>
+    <div className="text-blue-800 underline text-3xl mt-2 text-center">
+      <Link to="/leaderboards" style={{ color: "gold", fontSize : "30px"}}>
+        💪 Leaderboards 💪
+      </Link>
+    </div>
+    <div className="text-blue-800 underline text-3xl mt-2 text-center">
+      <Link to="/vault" style={{ color: "gold", fontSize : "20px"}}>
+        🔑 Do you have a key? 🔑
       </Link>
     </div>
   </div>
