@@ -209,8 +209,6 @@ function Lobby() {
   const isChoosingDeny = state?.pending_deny === playerName;
   const eligibleTargets = state?.players.filter(p => p.name !== playerName && p.hp > 0) || [];
 
-  const [statusMsg, setStatusMsg] = useState("");
-
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
   const [floatingMessages, setFloatingMessages] = useState<string[]>([]);
@@ -234,7 +232,6 @@ function Lobby() {
 
   useEffect(() => {
     // Nullstill statusmelding når ny runde starter
-    setStatusMsg("");
     setDenyTarget("");
     setTarget("");
     setAction("");
@@ -615,11 +612,6 @@ function Lobby() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ player: playerName, target: denyTarget }),
                       });
-                      if (res.ok) {
-                        setStatusMsg("🚫 Deny choice submitted!");
-                      } else {
-                        setStatusMsg("❌ Something went wrong submitting deny.");
-                      }
                     }}
                     style={{
                       padding: "10px 20px",
@@ -638,6 +630,7 @@ function Lobby() {
               </div>
             )}
     
+          </div>
             {gameOver && (
               <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
                 <p className="text-xl font-semibold mb-3">
@@ -651,7 +644,6 @@ function Lobby() {
                 </Link>
               </div>
             )}
-          </div>
         </div>
       </div>
     </div>
