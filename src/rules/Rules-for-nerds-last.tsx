@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import SoundtrackButtonVault from "../music/SoundtrackButtonInsideVault"
+import SoundtrackButtonVault from "../music/SoundtrackButtonVault"
 
 export default function RulesForNerdsLast() {
   return (
