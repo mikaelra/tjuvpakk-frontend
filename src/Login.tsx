@@ -29,6 +29,7 @@ export default function Login() {
 
       // Success
       localStorage.setItem("playerName", name);
+      localStorage.setItem("playerEmail", email);
       navigate("/");
     } catch (err) {
       console.error("Login error:", err);
@@ -46,7 +47,7 @@ export default function Login() {
           placeholder="Enter your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full mb-4 p-2 border border-gray-300 rounded"
+          className="w-full mb-4 p-2 border-2 border-black rounded text-gray-800"
         />
 
         <input
@@ -54,14 +55,23 @@ export default function Login() {
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-6 p-2 border border-gray-300 rounded"
+          className="w-full mb-6 p-2 border-2 border-black rounded text-gray-800"
         />
 
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          style={{
+            padding: "10px 20px",
+            border: "2px solid black",
+            borderRadius: "5px",
+            backgroundColor: "#ddd",
+            color: "black",
+            fontWeight: "bold",
+            cursor: "pointer",
+            width: "100%",
+          }}
         >
           Log In
         </button>

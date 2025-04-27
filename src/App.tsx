@@ -75,10 +75,11 @@ function Home() {
 
   const handleCreate = async () => {
     if (!name) return;
+    const playerEmail = localStorage.getItem("playerEmail") || "";
     const res = await fetch(`${BACKEND_URL}/create_lobby`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ name, email: playerEmail })
     });
     if (!res.ok) {
       const errorData = await res.json();
@@ -89,22 +90,29 @@ function Home() {
     localStorage.setItem("playerName", name);
     navigate(`/lobby/${data.lobby_id}`);
   };
+  
+  
 
-  const handleJoin = async () => {
-    if (!name || !joinCode) return;
-    const res = await fetch(`${BACKEND_URL}/join_lobby/${joinCode}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
-    });
-    if (res.ok) {
-      localStorage.setItem("playerName", name);
-      navigate(`/lobby/${joinCode}`);
-    } else {
-      const errorData = await res.json();
-      alert(errorData.error);
-    }
-  };
+const handleJoin = async () => {
+  if (!name || !joinCode) return;
+
+  const playerEmail = localStorage.getItem("playerEmail") || "";
+
+  const res = await fetch(`${BACKEND_URL}/join_lobby/${joinCode}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email: playerEmail }),
+  });
+
+  if (res.ok) {
+    localStorage.setItem("playerName", name);
+    navigate(`/lobby/${joinCode}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error);
+  }
+};
+
 
   return (
     <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
