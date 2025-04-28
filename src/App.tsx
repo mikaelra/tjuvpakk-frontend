@@ -28,6 +28,7 @@ interface Player {
   alive: boolean;
   messages: (string | string[])[];
   idle_rounds: number;
+  boss?: boolean;
 }
 
 interface LobbyState {
@@ -39,6 +40,8 @@ interface LobbyState {
   deny_target: string | null;
   readyPlayers: string[];
   round_end_time: number | null;
+  start_time: number | null;
+  boss_fight: boolean | null;
 }
 
 export default function App() {
@@ -110,6 +113,29 @@ const handleJoin = async () => {
   } else {
     const errorData = await res.json();
     alert(errorData.error);
+  }
+};
+
+const handleEnterRaid = async () => {
+  const playerName = localStorage.getItem("playerName");
+
+  if (!playerName) {
+    alert("You must be logged in to enter the raid.");
+    return;
+  }
+
+  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: playerName }),
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    navigate(`/lobby/${data.lobby_id}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error || "Failed to enter raid.");
   }
 };
 
@@ -264,7 +290,20 @@ const handleJoin = async () => {
         >
           Create Lobby
         </button>
-
+        <button
+          onClick={handleEnterRaid}
+          style={{
+            color: "gold",
+            fontSize: "24px",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+            marginTop: "1rem"
+          }}
+        >
+          👿 Enter Raid 👿
+        </button>
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
           <Link to="/rules" style={{ color: "gold" }}>
@@ -303,7 +342,7 @@ function Lobby() {
   const [target, setTarget] = useState<string>("");
 
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
-  const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
+  const gameOver = !!state?.winner;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
   const isDenied = playerName === deniedTarget;
@@ -418,6 +457,11 @@ function Lobby() {
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
   const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
   const isAdmin = myPlayer?.admin
+  const boss = state?.players.find((p) => p.boss);
+  const gameStarted = (state?.round ?? 0) > 0;
+  const now = Date.now() / 1000; // Nåværende tid i sekunder
+  const secondsUntilStart = Math.max(0, Math.floor((state?.start_time ?? 0) - now));
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
@@ -435,6 +479,17 @@ function Lobby() {
       </div>
       <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
         <div className="w-full max-w-3xl flex flex-col items-center justify-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
+        {state?.boss_fight && boss && (
+          <div className="bg-red-200 p-4 rounded mb-4">
+            <h2 className="text-2xl font-bold text-center">{boss.name}</h2>
+            <p className="text-center">HP: {boss.hp}</p>
+            {!gameStarted && (
+              <p className="text-center text-gray-500">
+                ⏳ Raid starts in {secondsUntilStart} sec
+              </p>
+            )}
+          </div>
+        )}
           <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
             Lobby ID: {lobbyId}
           </h2>
