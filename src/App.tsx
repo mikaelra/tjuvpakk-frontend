@@ -116,8 +116,8 @@ const handleJoin = async () => {
   }
 };
 
+const playerName = localStorage.getItem("playerName");
 const handleEnterRaid = async () => {
-  const playerName = localStorage.getItem("playerName");
 
   if (!playerName) {
     alert("You must be logged in to enter the raid.");
@@ -139,6 +139,31 @@ const handleEnterRaid = async () => {
   }
 };
 
+const [showRelics, setShowRelics] = useState(false);
+const [relics, setRelics] = useState([]);
+
+const fetchRelics = async () => {
+  if (!isLoggedIn) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/get_player_relics`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: playerName }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setRelics(data.relics);
+    } else {
+      setRelics([]); // Empty if not ok
+    }
+  } catch (error) {
+    console.error('Failed to fetch relics', error);
+    setRelics([]); // Empty if error
+  } finally {
+    setShowRelics(true); // Always open the modal after trying
+  }
+};
 
   return (
     <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
@@ -222,13 +247,57 @@ const handleEnterRaid = async () => {
             </button>
           </>
         )}
+      {isLoggedIn && (
+        <button onClick={fetchRelics} className="btn"
+          style={{
+            padding: "10px 20px",
+            border: "2px solid black",
+            borderRadius: "5px",
+            backgroundColor: "#ddd",
+            color: "black",
+            fontWeight: "bold",
+            cursor: "pointer",
+            marginTop: "5px",
+          }}>
+          Your relics
+        </button>
+      )}
+
+      {showRelics && (
+        <div className="modal">
+          <div className="modal-content">
+            <ul>
+              {relics.length > 0 ? (
+                relics.map((relic) => (
+                  <li key={relic.id}>
+                    <strong>{relic.name}</strong><br/>
+                    {relic.flavour_text || "No description yet"}
+                  </li>
+                ))
+              ) : (
+                <p>You have no relics yet.</p>
+              )}
+            </ul>
+            <button onClick={() => setShowRelics(false)} className="btn"
+              style={{
+                padding: "10px 20px",
+                border: "2px solid black",
+                borderRadius: "5px",
+                backgroundColor: "#ddd",
+                color: "black",
+                fontWeight: "bold",
+                cursor: "pointer",
+                marginTop: "5px",
+              }}>Close</button>
+          </div>
+        </div>
+      )}
       </div>
 
       {/* Soundtrack Button Top Right */}
       <div className="absolute top-4 right-4 z-20">
         <SoundtrackButton />
       </div>
-
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center">
         <img
@@ -342,7 +411,7 @@ function Lobby() {
   const [target, setTarget] = useState<string>("");
 
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
-  const gameOver = !!state?.winner;
+  const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
   const isDenied = playerName === deniedTarget;
