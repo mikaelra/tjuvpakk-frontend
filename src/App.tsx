@@ -14,6 +14,8 @@ import RulesForNerdsLast from "./rules/Rules-for-nerds-last";
 import FloatingMessage from "./FloatingMessage";
 import TheVault from "./artifacts/TheVault";
 import Leaderboards from "./Leaderboards";
+import Signup from "./Signup";
+import Login from "./Login";
 
 import { BACKEND_URL } from "./config";
 
@@ -26,6 +28,7 @@ interface Player {
   alive: boolean;
   messages: (string | string[])[];
   idle_rounds: number;
+  boss?: boolean;
 }
 
 interface LobbyState {
@@ -37,6 +40,8 @@ interface LobbyState {
   deny_target: string | null;
   readyPlayers: string[];
   round_end_time: number | null;
+  start_time: number | null;
+  boss_fight: boolean | null;
 }
 
 export default function App() {
@@ -56,153 +61,276 @@ export default function App() {
         <Route path="/lobby/:lobbyId" element={<Lobby />} />
         <Route path="/vault" element ={<TheVault/>} />
         <Route path="/leaderboards" element ={<Leaderboards/>} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );
 }
 
 function Home() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(localStorage.getItem("playerName") || "");
   const [joinCode, setJoinCode] = useState("");
   const navigate = useNavigate();
 
+  const isLoggedIn = !!localStorage.getItem("playerName");
+  const loggedInName = localStorage.getItem("playerName") || "";
+
   const handleCreate = async () => {
     if (!name) return;
+    const playerEmail = localStorage.getItem("playerEmail") || "";
     const res = await fetch(`${BACKEND_URL}/create_lobby`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ name, email: playerEmail })
     });
     if (!res.ok) {
-      const errorData = await res.json(); // 👈 get the error body
+      const errorData = await res.json();
       alert(errorData.error);
-      return; // backend should send { "error": "..." }
+      return;
     }
-
     const data = await res.json();
     localStorage.setItem("playerName", name);
     navigate(`/lobby/${data.lobby_id}`);
   };
+  
+  
 
-  const handleJoin = async () => {
-    if (!name || !joinCode) return;
-    const res = await fetch(`${BACKEND_URL}/join_lobby/${joinCode}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
-    });
-    if (res.ok) {
-      localStorage.setItem("playerName", name);
-      navigate(`/lobby/${joinCode}`);
-    } else {
-      const errorData = await res.json(); // 👈 get the error body
-      alert(errorData.error);
-      return; // backend should send { "error": "..." }
-    }
-  };
+const handleJoin = async () => {
+  if (!name || !joinCode) return;
+
+  const playerEmail = localStorage.getItem("playerEmail") || "";
+
+  const res = await fetch(`${BACKEND_URL}/join_lobby/${joinCode}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email: playerEmail }),
+  });
+
+  if (res.ok) {
+    localStorage.setItem("playerName", name);
+    navigate(`/lobby/${joinCode}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error);
+  }
+};
+
+const handleEnterRaid = async () => {
+  const playerName = localStorage.getItem("playerName");
+
+  if (!playerName) {
+    alert("You must be logged in to enter the raid.");
+    return;
+  }
+
+  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: playerName }),
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    navigate(`/lobby/${data.lobby_id}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error || "Failed to enter raid.");
+  }
+};
+
 
   return (
-  <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
-  {/* Bakgrunnsbilde Image */}
-  <img
-    src="/images/bakgrunn.png"
-    alt="Background"
-    className="absolute top-0 left-0 w-full h-full object-cover z-0"
-  />
-
-   {/* Soundtrack Button in Top-Right Corner */}
-   <div className="absolute top-4 right-4 z-20">
-      <SoundtrackButton />
-    </div>
-
-  {/* Content */}
-  <div className="relative z-10 flex flex-col items-center justify-center">
-  <img
-  src="/images/logo.png" 
-  alt="Logo"
-  className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
-/>
-    
-
-    {/* Instructions */}
-    <div className="text-center mb-5">
-      <h2 className="text-lg text-black"><span className="text-green-600">O</span>ne Person needs to create a lobby</h2>
-      <h2 className="text-lg text-black"><span className="text-green-600">T</span>hen share the lobby id to other players</h2>
-    </div>
-
-    {/* Input Fields and Join Button */}
-    <div className="flex flex-col items-center space-y-4 mt-4">
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
+    <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
+      {/* Bakgrunnsbilde */}
+      <img
+        src="/images/bakgrunn.png"
+        alt="Background"
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
       />
-      <div className="flex items-center w-64">
-        <input
-          type="text"
-          placeholder="Lobby code"
-          value={joinCode}
-          onChange={(e) => setJoinCode(e.target.value)}
-          className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
+
+      {/* Top Left Buttons */}
+      <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+        {!isLoggedIn && (
+          <>
+            <Link to="/login">
+              <button
+                style={{
+                  padding: "10px 20px",
+                  border: "2px solid black",
+                  borderRadius: "5px",
+                  backgroundColor: "#ddd",
+                  color: "black",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginBottom: "5px",
+                }}
+              >
+                Log In
+              </button>
+            </Link>
+            <Link to="/signup">
+              <button
+                style={{
+                  padding: "10px 20px",
+                  border: "2px solid black",
+                  borderRadius: "5px",
+                  backgroundColor: "#ddd",
+                  color: "black",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Create User
+              </button>
+            </Link>
+          </>
+        )}
+        {isLoggedIn && (
+          <>
+            <div
+              style={{
+                padding: "10px 20px",
+                border: "2px solid black",
+                borderRadius: "5px",
+                backgroundColor: "#ddd",
+                color: "black",
+                fontWeight: "bold",
+                textAlign: "center",
+              }}
+            >
+              Logged in as: {loggedInName}
+            </div>
+            <button
+              onClick={() => {
+                localStorage.removeItem("playerName");
+                localStorage.removeItem("playerEmail");
+                window.location.reload();
+              }}
+              style={{
+                padding: "10px 20px",
+                border: "2px solid black",
+                borderRadius: "5px",
+                backgroundColor: "#ddd",
+                color: "black",
+                fontWeight: "bold",
+                cursor: "pointer",
+                marginTop: "5px",
+              }}
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Soundtrack Button Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <SoundtrackButton />
+      </div>
+
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center justify-center">
+        <img
+          src="/images/logo.png"
+          alt="Logo"
+          className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
         />
+
+        {/* Always show input if not logged in */}
+        {!isLoggedIn && (
+          <div className="flex items-center w-64">
+          <input
+            type="text"
+            placeholder="Enter your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
+          />
+          </div>
+        )}
+
+        <div className="flex items-center w-64">
+          <input
+            type="text"
+            placeholder="Lobby code"
+            value={joinCode}
+            onChange={(e) => setJoinCode(e.target.value)}
+            className="w-full p-2 rounded-l-md bg-gray-200 text-gray-600 focus:outline-none border-2 border-black"
+          />
+          <button
+            onClick={handleJoin}
+            style={{
+              padding: "10px 20px",
+              margin: "5px",
+              border: "2px solid black",
+              borderRadius: "5px",
+              backgroundColor: "#ddd",
+              color: "black",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Join
+          </button>
+        </div>
+
         <button
-          onClick={handleJoin}
+          onClick={handleCreate}
           style={{
             padding: "10px 20px",
             margin: "5px",
             border: "2px solid black",
             borderRadius: "5px",
-            backgroundColor:  "#ddd",
+            backgroundColor: "#ddd",
             color: "black",
             fontWeight: "bold",
             cursor: "pointer",
           }}
         >
-          Join
+          Create Lobby
         </button>
+        <button
+          onClick={handleEnterRaid}
+          style={{
+            color: "gold",
+            fontSize: "24px",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+            marginTop: "1rem"
+          }}
+        >
+          👿 Enter Raid 👿
+        </button>
+        {/* Rules Links */}
+        <div className="text-blue-800 underline text-3xl mt-4 text-center">
+          <Link to="/rules" style={{ color: "gold" }}>
+            📜 Rules 📜
+          </Link>
+        </div>
+        <div className="text-blue-800 underline text-3xl mt-2 text-center">
+          <Link to="/rules/p1" style={{ color: "gold", fontSize: "24px" }}>
+            📜 Rules For Nerds 📜
+          </Link>
+        </div>
+        <div className="text-blue-800 underline text-3xl mt-2 text-center">
+          <Link to="/leaderboards" style={{ color: "gold", fontSize: "30px" }}>
+            💪 Leaderboards 💪
+          </Link>
+        </div>
+        <div className="text-blue-800 underline text-3xl mt-2 text-center">
+          <Link to="/vault" style={{ color: "gold", fontSize: "20px" }}>
+            🔑 Do you have a key? 🔑
+          </Link>
+        </div>
       </div>
-      <button
-        onClick={handleCreate}
-        style={{
-          padding: "10px 20px",
-          margin: "5px",
-          border: "2px solid black",
-          borderRadius: "5px",
-          backgroundColor:  "#ddd",
-          color: "black",
-          fontWeight: "bold",
-          cursor: "pointer",
-        }}
-      >
-        Create lobby
-      </button>
     </div>
-    <div className="text-blue-800 underline text-3xl mt-4 text-center">
-      <Link to="/rules" style={{ color: "gold" }}>
-        📜 Rules 📜
-      </Link>
-    </div>
-    <div className="text-blue-800 underline text-3xl mt-2 text-center">
-      <Link to="/rules/p1" style={{ color: "gold", fontSize : "24px"}}>
-        📜 Rules For Nerds 📜
-      </Link>
-    </div>
-    <div className="text-blue-800 underline text-3xl mt-2 text-center">
-      <Link to="/leaderboards" style={{ color: "gold", fontSize : "30px"}}>
-        💪 Leaderboards 💪
-      </Link>
-    </div>
-    <div className="text-blue-800 underline text-3xl mt-2 text-center">
-      <Link to="/vault" style={{ color: "gold", fontSize : "20px"}}>
-        🔑 Do you have a key? 🔑
-      </Link>
-    </div>
-  </div>
-</div>
   );
 }
+
+
 
 function Lobby() {
   const { lobbyId } = useParams<{ lobbyId: string }>();
@@ -214,7 +342,7 @@ function Lobby() {
   const [target, setTarget] = useState<string>("");
 
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
-  const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
+  const gameOver = !!state?.winner;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
   const isDenied = playerName === deniedTarget;
@@ -329,6 +457,11 @@ function Lobby() {
   const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
   const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
   const isAdmin = myPlayer?.admin
+  const boss = state?.players.find((p) => p.boss);
+  const gameStarted = (state?.round ?? 0) > 0;
+  const now = Date.now() / 1000; // Nåværende tid i sekunder
+  const secondsUntilStart = Math.max(0, Math.floor((state?.start_time ?? 0) - now));
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-8">
@@ -346,6 +479,17 @@ function Lobby() {
       </div>
       <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
         <div className="w-full max-w-3xl flex flex-col items-center justify-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm transition-all duration-300">
+        {state?.boss_fight && boss && (
+          <div className="bg-red-200 p-4 rounded mb-4">
+            <h2 className="text-2xl font-bold text-center">{boss.name}</h2>
+            <p className="text-center">HP: {boss.hp}</p>
+            {!gameStarted && (
+              <p className="text-center text-gray-500">
+                ⏳ Raid starts in {secondsUntilStart} sec
+              </p>
+            )}
+          </div>
+        )}
           <h2 className="text-3xl font-extrabold text-gray-900 mt-6 mb-4 tracking-tight animate-fade-in">
             Lobby ID: {lobbyId}
           </h2>
@@ -421,6 +565,33 @@ function Lobby() {
               🚀 Start Game
             </button>
           )}
+          {isAdmin && state?.round === 0 && (
+          <button
+            onClick={async () => {
+              const res = await fetch(`${BACKEND_URL}/add_dummy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: playerName, lobby_id: lobbyId }),
+              });
+              if (!res.ok) {
+                const data = await res.json();
+                alert(data.error || "Failed to add bot");
+              }
+            }}
+            style={{
+              padding: "10px 20px",
+              margin: "10px",
+              border: "2px solid black",
+              borderRadius: "8px",
+              backgroundColor: "gray",
+              color: "white",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            🤖 Add Random Bot
+          </button>
+        )}
           {floatingMessages.map((msg, idx) => (
             <FloatingMessage
               key={idx}
