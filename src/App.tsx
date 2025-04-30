@@ -140,30 +140,30 @@ const handleEnterRaid = async () => {
 };
 
 const [showRelics, setShowRelics] = useState(false);
-const [relics, setRelics] = useState([]);
+//const [relics, setRelics] = useState([]);
 
-const fetchRelics = async () => {
-  if (!isLoggedIn) return;
-  try {
-    const response = await fetch(`${BACKEND_URL}/get_player_relics`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: playerName }),
-    });
+// const fetchRelics = async () => {
+//   if (!isLoggedIn) return;
+//   try {
+//     const response = await fetch(`${BACKEND_URL}/get_player_relics`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ name: playerName }),
+//     });
 
-    if (response.ok) {
-      const data = await response.json();
-      setRelics(data.relics);
-    } else {
-      setRelics([]); // Empty if not ok
-    }
-  } catch (error) {
-    console.error('Failed to fetch relics', error);
-    setRelics([]); // Empty if error
-  } finally {
-    setShowRelics(true); // Always open the modal after trying
-  }
-};
+//     if (response.ok) {
+//       const data = await response.json();
+//       setRelics(data.relics);
+//     } else {
+//       setRelics([]); // Empty if not ok
+//     }
+//   } catch (error) {
+//     console.error('Failed to fetch relics', error);
+//     setRelics([]); // Empty if error
+//   } finally {
+//     setShowRelics(true); // Always open the modal after trying
+//   }
+// };
 
   return (
     <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
@@ -247,7 +247,7 @@ const fetchRelics = async () => {
             </button>
           </>
         )}
-      {isLoggedIn && (
+      {/* {isLoggedIn && (
         <button onClick={fetchRelics} className="btn"
           style={{
             padding: "10px 20px",
@@ -261,13 +261,13 @@ const fetchRelics = async () => {
           }}>
           Your relics
         </button>
-      )}
+      )} */}
 
       {showRelics && (
         <div className="modal">
           <div className="modal-content">
             <ul>
-              {relics.length > 0 ? (
+              {/* {relics.length > 0 ? (
                 relics.map((relic) => (
                   <li key={relic.id}>
                     <strong>{relic.name}</strong><br/>
@@ -276,7 +276,7 @@ const fetchRelics = async () => {
                 ))
               ) : (
                 <p>You have no relics yet.</p>
-              )}
+              )} */}
             </ul>
             <button onClick={() => setShowRelics(false)} className="btn"
               style={{
