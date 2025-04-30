@@ -375,22 +375,22 @@ const [showRelics, setShowRelics] = useState(false);
         </button> */}
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
-          <Link to="/rules" style={{ color: "gold" }}>
+          <Link to="/rules" style={{ color: "yellow" }}>
             📜 Rules 📜
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/rules/p1" style={{ color: "gold", fontSize: "24px" }}>
+          <Link to="/rules/p1" style={{ color: "green", fontSize: "24px" }}>
             📜 Rules For Nerds 📜
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/leaderboards" style={{ color: "gold", fontSize: "30px" }}>
+          <Link to="/leaderboards" style={{ color: "red", fontSize: "30px" }}>
             💪 Leaderboards 💪
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/vault" style={{ color: "gold", fontSize: "20px" }}>
+          <Link to="/vault" style={{ color: "light-blue", fontSize: "20px" }}>
             🔑 Do you have a key? 🔑
           </Link>
         </div>
