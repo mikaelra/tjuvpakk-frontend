@@ -359,7 +359,7 @@ const [showRelics, setShowRelics] = useState(false);
         >
           Create Lobby
         </button>
-        <button
+        {/* <button
           onClick={handleEnterRaid}
           style={{
             color: "gold",
@@ -372,7 +372,7 @@ const [showRelics, setShowRelics] = useState(false);
           }}
         >
           👿 Enter Raid 👿
-        </button>
+        </button> */}
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
           <Link to="/rules" style={{ color: "gold" }}>
