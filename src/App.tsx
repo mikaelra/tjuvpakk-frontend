@@ -537,7 +537,7 @@ function Lobby() {
       <div className="fixed top-0 left-0 w-full h-full z-0">      
         {/* Bakgrunnsbilde Image */}
         <img
-          src="/images/bakgrunn2.jpg"
+          src="/images/bakgrunn2.png"
           alt="Background"
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         />
