@@ -117,27 +117,27 @@ const handleJoin = async () => {
 };
 
 const playerName = localStorage.getItem("playerName");
-const handleEnterRaid = async () => {
+// const handleEnterRaid = async () => {
 
-  if (!playerName) {
-    alert("You must be logged in to enter the raid.");
-    return;
-  }
+//   if (!playerName) {
+//     alert("You must be logged in to enter the raid.");
+//     return;
+//   }
 
-  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: playerName }),
-  });
+//   const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ name: playerName }),
+//   });
 
-  if (res.ok) {
-    const data = await res.json();
-    navigate(`/lobby/${data.lobby_id}`);
-  } else {
-    const errorData = await res.json();
-    alert(errorData.error || "Failed to enter raid.");
-  }
-};
+//   if (res.ok) {
+//     const data = await res.json();
+//     navigate(`/lobby/${data.lobby_id}`);
+//   } else {
+//     const errorData = await res.json();
+//     alert(errorData.error || "Failed to enter raid.");
+//   }
+// };
 
 const [showRelics, setShowRelics] = useState(false);
 //const [relics, setRelics] = useState([]);
