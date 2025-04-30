@@ -116,7 +116,7 @@ const handleJoin = async () => {
   }
 };
 
-const playerName = localStorage.getItem("playerName");
+// const playerName = localStorage.getItem("playerName");
 // const handleEnterRaid = async () => {
 
 //   if (!playerName) {
