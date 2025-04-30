@@ -116,28 +116,28 @@ const handleJoin = async () => {
   }
 };
 
-const playerName = localStorage.getItem("playerName");
-const handleEnterRaid = async () => {
+// const playerName = localStorage.getItem("playerName");
+// const handleEnterRaid = async () => {
 
-  if (!playerName) {
-    alert("You must be logged in to enter the raid.");
-    return;
-  }
+//   if (!playerName) {
+//     alert("You must be logged in to enter the raid.");
+//     return;
+//   }
 
-  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: playerName }),
-  });
+//   const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ name: playerName }),
+//   });
 
-  if (res.ok) {
-    const data = await res.json();
-    navigate(`/lobby/${data.lobby_id}`);
-  } else {
-    const errorData = await res.json();
-    alert(errorData.error || "Failed to enter raid.");
-  }
-};
+//   if (res.ok) {
+//     const data = await res.json();
+//     navigate(`/lobby/${data.lobby_id}`);
+//   } else {
+//     const errorData = await res.json();
+//     alert(errorData.error || "Failed to enter raid.");
+//   }
+// };
 
 const [showRelics, setShowRelics] = useState(false);
 //const [relics, setRelics] = useState([]);
@@ -375,22 +375,22 @@ const [showRelics, setShowRelics] = useState(false);
         </button> */}
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
-          <Link to="/rules" style={{ color: "gold" }}>
+          <Link to="/rules" style={{ color: "yellow" }}>
             📜 Rules 📜
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/rules/p1" style={{ color: "gold", fontSize: "24px" }}>
+          <Link to="/rules/p1" style={{ color: "green", fontSize: "24px" }}>
             📜 Rules For Nerds 📜
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/leaderboards" style={{ color: "gold", fontSize: "30px" }}>
+          <Link to="/leaderboards" style={{ color: "red", fontSize: "30px" }}>
             💪 Leaderboards 💪
           </Link>
         </div>
         <div className="text-blue-800 underline text-3xl mt-2 text-center">
-          <Link to="/vault" style={{ color: "gold", fontSize: "20px" }}>
+          <Link to="/vault" style={{ color: "light-blue", fontSize: "20px" }}>
             🔑 Do you have a key? 🔑
           </Link>
         </div>
@@ -537,7 +537,7 @@ function Lobby() {
       <div className="fixed top-0 left-0 w-full h-full z-0">      
         {/* Bakgrunnsbilde Image */}
         <img
-          src="/images/bakgrunn2.jpg"
+          src="/images/bakgrunn2.png"
           alt="Background"
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         />
