@@ -93,6 +93,35 @@ function Home() {
     localStorage.setItem("playerName", name);
     navigate(`/lobby/${data.lobby_id}`);
   };
+
+  const [nextRaidTime, setNextRaidTime] = useState<number | null>(null);
+  const [secondsUntilNextRaid, setSecondsUntilNextRaid] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchNextRaidTime = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/get_next_raid_time`);
+        const json = await res.json();
+        setNextRaidTime(json.next_raid_time);
+      } catch (error) {
+        console.error("Feil ved henting av neste raid-tid:", error);
+      }
+    };
+
+    fetchNextRaidTime();
+  }, []);
+
+  useEffect(() => {
+    if (!nextRaidTime) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now() / 1000;
+      const diff = Math.max(0, Math.floor(nextRaidTime - now));
+      setSecondsUntilNextRaid(diff);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextRaidTime]);
   
   
 
@@ -116,28 +145,28 @@ const handleJoin = async () => {
   }
 };
 
-// const playerName = localStorage.getItem("playerName");
-// const handleEnterRaid = async () => {
+const playerName = localStorage.getItem("playerName");
+const handleEnterRaid = async () => {
 
-//   if (!playerName) {
-//     alert("You must be logged in to enter the raid.");
-//     return;
-//   }
+  if (!playerName) {
+    alert("You must be logged in to enter the raid.");
+    return;
+  }
 
-//   const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ name: playerName }),
-//   });
+  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: playerName }),
+  });
 
-//   if (res.ok) {
-//     const data = await res.json();
-//     navigate(`/lobby/${data.lobby_id}`);
-//   } else {
-//     const errorData = await res.json();
-//     alert(errorData.error || "Failed to enter raid.");
-//   }
-// };
+  if (res.ok) {
+    const data = await res.json();
+    navigate(`/lobby/${data.lobby_id}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error || "Failed to enter raid.");
+  }
+};
 
 const [showRelics, setShowRelics] = useState(false);
 //const [relics, setRelics] = useState([]);
@@ -305,6 +334,11 @@ const [showRelics, setShowRelics] = useState(false);
           alt="Logo"
           className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
         />
+                {secondsUntilNextRaid !== null && (
+          <div className="text-white font-bold text-lg mt-2">
+            ⏳ Next boss-fight in: {Math.floor(secondsUntilNextRaid / 60)}m {secondsUntilNextRaid % 60}s
+          </div>
+        )}
 
         {/* Always show input if not logged in */}
         {!isLoggedIn && (
@@ -359,7 +393,7 @@ const [showRelics, setShowRelics] = useState(false);
         >
           Create Lobby
         </button>
-        {/* <button
+        <button
           onClick={handleEnterRaid}
           style={{
             color: "gold",
@@ -371,8 +405,8 @@ const [showRelics, setShowRelics] = useState(false);
             marginTop: "1rem"
           }}
         >
-          👿 Enter Raid 👿
-        </button> */}
+          👿 Enter Boss-fight 👿
+        </button>
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
           <Link to="/rules" style={{ color: "yellow" }}>
