@@ -513,7 +513,7 @@ function Lobby() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        setMessages([]);
+        //setMessages([]);
         const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
         if (!res.ok) return;
         const json = await res.json();
