@@ -16,7 +16,6 @@ import TheVault from "./artifacts/TheVault";
 import Leaderboards from "./Leaderboards";
 import Signup from "./Signup";
 import Login from "./Login";
-import React from "react";
 
 import { BACKEND_URL } from "./config";
 
@@ -31,6 +30,7 @@ interface Player {
   idle_rounds: number;
   boss?: boolean;
   spectator: boolean;
+  title?: string;
 }
 
 interface LobbyState {
