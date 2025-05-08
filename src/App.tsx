@@ -41,7 +41,7 @@ interface LobbyState {
   pending_deny: string | null;
   deny_target: string | null;
   readyPlayers: string[];
-  round_end_time: number | null;
+  round_end_time: string | null;
   start_time: number;
   boss_fight: boolean | null;
   gameover: boolean | null;
@@ -475,10 +475,12 @@ function Lobby() {
       setSecondsLeft(null);
       return;
     }
+
+    const end_time_str = state.round_end_time
   
     const interval = setInterval(() => {
       const now = Date.now() / 1000;
-      const endTime = state.round_end_time ?? 0; // fallback, selv om vi vet den finnes
+      const endTime = new Date(end_time_str).getTime() / 1000;
   
       const remaining = Math.max(0, Math.floor(endTime - now));
       setSecondsLeft(remaining);
