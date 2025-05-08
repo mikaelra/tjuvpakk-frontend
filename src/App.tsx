@@ -16,6 +16,7 @@ import TheVault from "./artifacts/TheVault";
 import Leaderboards from "./Leaderboards";
 import Signup from "./Signup";
 import Login from "./Login";
+import React from "react";
 
 import { BACKEND_URL } from "./config";
 
@@ -29,6 +30,7 @@ interface Player {
   messages: (string | string[])[];
   idle_rounds: number;
   boss?: boolean;
+  spectator: boolean;
 }
 
 interface LobbyState {
@@ -40,8 +42,9 @@ interface LobbyState {
   deny_target: string | null;
   readyPlayers: string[];
   round_end_time: number | null;
-  start_time: number | null;
+  start_time: number;
   boss_fight: boolean | null;
+  gameover: boolean | null;
 }
 
 export default function App() {
@@ -102,21 +105,24 @@ function Home() {
       try {
         const res = await fetch(`${BACKEND_URL}/get_next_raid_time`);
         const json = await res.json();
-        setNextRaidTime(json.next_raid_time);
+        setNextRaidTime(json.start_time);
+        console.log(json)
       } catch (error) {
         console.error("Feil ved henting av neste raid-tid:", error);
       }
     };
 
     fetchNextRaidTime();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!nextRaidTime) return;
 
     const interval = setInterval(() => {
-      const now = Date.now() / 1000;
-      const diff = Math.max(0, Math.floor(nextRaidTime - now));
+      const now = new Date();
+      const nextRT = new Date(nextRaidTime)
+      const diff =  Math.floor((nextRT.getTime() - now.getTime()) / 1000);
+      console.log(diff)
       setSecondsUntilNextRaid(diff);
     }, 1000);
 
@@ -334,7 +340,8 @@ const fetchRelics = async () => {
           alt="Logo"
           className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
         />
-                {secondsUntilNextRaid !== null && (
+                {secondsUntilNextRaid !== null && secondsUntilNextRaid > 0 && (
+          
           <div className="text-white font-bold text-lg mt-2">
             ⏳ Next boss-fight in: {Math.floor(secondsUntilNextRaid / 60)}m {secondsUntilNextRaid % 60}s
           </div>
@@ -445,7 +452,7 @@ function Lobby() {
   const [target, setTarget] = useState<string>("");
 
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
-  const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
+  const gameOver = state?.gameover || false;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
   const isDenied = playerName === deniedTarget;
@@ -562,8 +569,41 @@ function Lobby() {
   const isAdmin = myPlayer?.admin
   const boss = state?.players.find((p) => p.boss);
   const gameStarted = (state?.round ?? 0) > 0;
-  const now = Date.now() / 1000; // Nåværende tid i sekunder
-  const secondsUntilStart = Math.max(0, Math.floor((state?.start_time ?? 0) - now));
+  const [nextRaidTime2, setNextRaidTime2] = useState<number | null>(null);
+  const [secondsUntilNextRaid2, setSecondsUntilNextRaid2] = useState<number | null>(null);
+  const [minutesUntilNextRaid2, setMinutesUntilNextRaid2] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchNextRaidTime = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/get_next_raid_time`);
+        const json = await res.json();
+        setNextRaidTime2(json.start_time);
+        console.log(json)
+      } catch (error) {
+        console.error("Feil ved henting av neste raid-tid:", error);
+      }
+    };
+
+    fetchNextRaidTime();
+  }, [isAlive]);
+
+  useEffect(() => {
+    if (!nextRaidTime2) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const nextRT = new Date(nextRaidTime2)
+
+      const diff =  Math.floor((nextRT.getTime() - now.getTime()) / 1000);
+      const seconds = Math.floor(diff % 60)
+      const minutes = Math.floor(diff / 60)
+      setSecondsUntilNextRaid2(seconds);
+      setMinutesUntilNextRaid2(minutes)
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextRaidTime2]);
 
 
   return (
@@ -585,10 +625,11 @@ function Lobby() {
         {state?.boss_fight && boss && (
           <div className="bg-red-200 p-4 rounded mb-4">
             <h2 className="text-2xl font-bold text-center">{boss.name}</h2>
+            <p className="text-center text-gray-500">{boss.title} </p>
             <p className="text-center">HP: {boss.hp}</p>
             {!gameStarted && (
               <p className="text-center text-gray-500">
-                ⏳ Raid starts in {secondsUntilStart} sec
+                ⏳ Raid starts in {minutesUntilNextRaid2}m {secondsUntilNextRaid2}s
               </p>
             )}
           </div>
@@ -611,6 +652,9 @@ function Lobby() {
                   {p.hp <= 0 && <span className="text-red-500">☠️</span>}
                   {(state.winner === p.name || (!state.winner && state.raidwinner === p.name)) && (
                     <span className="text-yellow-500">👑</span>
+                  )}
+                  {p.spectator && (
+                    <span className="text-yellow-500">👁</span>
                   )}
                   <span className="font-medium">{p.name}</span>
                   {isAdmin && p.name !== playerName && p.hp > 0 && state?.round === 0 && (
@@ -704,7 +748,7 @@ function Lobby() {
               }}
             />
           ))}
-    
+          {!myPlayer?.spectator && (
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
             <p className="text-gray-700 flex gap-4">
@@ -719,8 +763,9 @@ function Lobby() {
               </span>
             </p>
           </div>
+          )}
     
-          {!gameOver && !isDenied && isAlive && state?.round !== 0 && (
+          {!gameOver && !isDenied && isAlive && state?.round !== 0 && !myPlayer?.spectator && (
             <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
               <div>
                 <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
