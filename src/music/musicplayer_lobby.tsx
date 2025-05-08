@@ -6,7 +6,7 @@ const SoundtrackButtonLobby: React.FC = () => {
 
   useEffect(() => {
     // Preload audio to minimize buffering
-    audioRef.current = new Audio('/music/bells-of-the-burguoise-230960.mp3');
+    audioRef.current = new Audio('/music/wights.m4a');
     audioRef.current.preload = 'auto'; // Preload the audio
     audioRef.current.loop = true; // Enable looping
 

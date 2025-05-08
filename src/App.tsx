@@ -29,6 +29,8 @@ interface Player {
   messages: (string | string[])[];
   idle_rounds: number;
   boss?: boolean;
+  spectator: boolean;
+  title?: string;
 }
 
 interface LobbyState {
@@ -40,8 +42,15 @@ interface LobbyState {
   deny_target: string | null;
   readyPlayers: string[];
   round_end_time: number | null;
-  start_time: number | null;
+  start_time: number;
   boss_fight: boolean | null;
+  gameover: boolean | null;
+}
+
+interface Relic {
+  id: string | number;
+  name: string;
+  flavour_text?: string; // Adjust to match API
 }
 
 export default function App() {
@@ -93,6 +102,38 @@ function Home() {
     localStorage.setItem("playerName", name);
     navigate(`/lobby/${data.lobby_id}`);
   };
+
+  const [nextRaidTime, setNextRaidTime] = useState<number | null>(null);
+  const [secondsUntilNextRaid, setSecondsUntilNextRaid] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchNextRaidTime = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/get_next_raid_time`);
+        const json = await res.json();
+        setNextRaidTime(json.start_time);
+        console.log(json)
+      } catch (error) {
+        console.error("Feil ved henting av neste raid-tid:", error);
+      }
+    };
+
+    fetchNextRaidTime();
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!nextRaidTime) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const nextRT = new Date(nextRaidTime)
+      const diff =  Math.floor((nextRT.getTime() - now.getTime()) / 1000);
+      console.log(diff)
+      setSecondsUntilNextRaid(diff);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextRaidTime]);
   
   
 
@@ -116,54 +157,54 @@ const handleJoin = async () => {
   }
 };
 
-// const playerName = localStorage.getItem("playerName");
-// const handleEnterRaid = async () => {
+const playerName = localStorage.getItem("playerName");
+const handleEnterRaid = async () => {
 
-//   if (!playerName) {
-//     alert("You must be logged in to enter the raid.");
-//     return;
-//   }
+  if (!playerName) {
+    alert("You must be logged in to enter the raid.");
+    return;
+  }
 
-//   const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ name: playerName }),
-//   });
+  const res = await fetch(`${BACKEND_URL}/get_raid_lobby`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: playerName }),
+  });
 
-//   if (res.ok) {
-//     const data = await res.json();
-//     navigate(`/lobby/${data.lobby_id}`);
-//   } else {
-//     const errorData = await res.json();
-//     alert(errorData.error || "Failed to enter raid.");
-//   }
-// };
+  if (res.ok) {
+    const data = await res.json();
+    navigate(`/lobby/${data.lobby_id}`);
+  } else {
+    const errorData = await res.json();
+    alert(errorData.error || "Failed to enter raid.");
+  }
+};
 
 const [showRelics, setShowRelics] = useState(false);
-//const [relics, setRelics] = useState([]);
+const [relics, setRelics] = useState<Relic[]>([]);
 
-// const fetchRelics = async () => {
-//   if (!isLoggedIn) return;
-//   try {
-//     const response = await fetch(`${BACKEND_URL}/get_player_relics`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ name: playerName }),
-//     });
+const fetchRelics = async () => {
+  if (!isLoggedIn) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/get_player_relics`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: playerName }),
+    });
 
-//     if (response.ok) {
-//       const data = await response.json();
-//       setRelics(data.relics);
-//     } else {
-//       setRelics([]); // Empty if not ok
-//     }
-//   } catch (error) {
-//     console.error('Failed to fetch relics', error);
-//     setRelics([]); // Empty if error
-//   } finally {
-//     setShowRelics(true); // Always open the modal after trying
-//   }
-// };
+    if (response.ok) {
+      const data: { relics: Relic[] } = await response.json(); // Type API response
+      setRelics(data.relics);
+    } else {
+      setRelics([]); // Empty if not ok
+    }
+  } catch (error) {
+    console.error('Failed to fetch relics', error);
+    setRelics([]); // Empty if error
+  } finally {
+    setShowRelics(true); // Always open the modal after trying
+  }
+};
 
   return (
     <div className="relative w-screen min-h-screen flex flex-col items-center justify-center text-white bg-cover bg-center" style={{ backgroundImage: `url(/images/bakgrunn.png)` }}>
@@ -247,7 +288,7 @@ const [showRelics, setShowRelics] = useState(false);
             </button>
           </>
         )}
-      {/* {isLoggedIn && (
+      {isLoggedIn && (
         <button onClick={fetchRelics} className="btn"
           style={{
             padding: "10px 20px",
@@ -261,22 +302,22 @@ const [showRelics, setShowRelics] = useState(false);
           }}>
           Your relics
         </button>
-      )} */}
+      )}
 
       {showRelics && (
         <div className="modal">
           <div className="modal-content">
             <ul>
-              {/* {relics.length > 0 ? (
+              {relics.length > 0 ? (
                 relics.map((relic) => (
                   <li key={relic.id}>
                     <strong>{relic.name}</strong><br/>
-                    {relic.flavour_text || "No description yet"}
+                    {relic.flavour_text || ""}
                   </li>
                 ))
               ) : (
                 <p>You have no relics yet.</p>
-              )} */}
+              )}
             </ul>
             <button onClick={() => setShowRelics(false)} className="btn"
               style={{
@@ -305,6 +346,12 @@ const [showRelics, setShowRelics] = useState(false);
           alt="Logo"
           className="h-60 w-80 sm:h-50 sm:w-100 md:h-60 md:w-120 lg:h-90 lg:w-135 object-contain mb-8"
         />
+                {secondsUntilNextRaid !== null && secondsUntilNextRaid > 0 && (
+          
+          <div className="text-white font-bold text-lg mt-2">
+            ⏳ Next boss-fight in: {Math.floor(secondsUntilNextRaid / 60)}m {secondsUntilNextRaid % 60}s
+          </div>
+        )}
 
         {/* Always show input if not logged in */}
         {!isLoggedIn && (
@@ -359,7 +406,7 @@ const [showRelics, setShowRelics] = useState(false);
         >
           Create Lobby
         </button>
-        {/* <button
+        <button
           onClick={handleEnterRaid}
           style={{
             color: "gold",
@@ -371,8 +418,8 @@ const [showRelics, setShowRelics] = useState(false);
             marginTop: "1rem"
           }}
         >
-          👿 Enter Raid 👿
-        </button> */}
+          👿 Enter Boss-fight 👿
+        </button>
         {/* Rules Links */}
         <div className="text-blue-800 underline text-3xl mt-4 text-center">
           <Link to="/rules" style={{ color: "yellow" }}>
@@ -411,7 +458,7 @@ function Lobby() {
   const [target, setTarget] = useState<string>("");
 
   const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
-  const gameOver = alivePlayers.length === 1 && (state?.round ?? 0) > 1;
+  const gameOver = state?.gameover || false;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
   const isDenied = playerName === deniedTarget;
@@ -479,7 +526,7 @@ function Lobby() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        setMessages([]);
+        //setMessages([]);
         const res = await fetch(`${BACKEND_URL}/get_player_messages/${lobbyId}/${playerName}`);
         if (!res.ok) return;
         const json = await res.json();
@@ -528,8 +575,41 @@ function Lobby() {
   const isAdmin = myPlayer?.admin
   const boss = state?.players.find((p) => p.boss);
   const gameStarted = (state?.round ?? 0) > 0;
-  const now = Date.now() / 1000; // Nåværende tid i sekunder
-  const secondsUntilStart = Math.max(0, Math.floor((state?.start_time ?? 0) - now));
+  const [nextRaidTime2, setNextRaidTime2] = useState<number | null>(null);
+  const [secondsUntilNextRaid2, setSecondsUntilNextRaid2] = useState<number | null>(null);
+  const [minutesUntilNextRaid2, setMinutesUntilNextRaid2] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchNextRaidTime = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/get_next_raid_time`);
+        const json = await res.json();
+        setNextRaidTime2(json.start_time);
+        console.log(json)
+      } catch (error) {
+        console.error("Feil ved henting av neste raid-tid:", error);
+      }
+    };
+
+    fetchNextRaidTime();
+  }, [isAlive]);
+
+  useEffect(() => {
+    if (!nextRaidTime2) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const nextRT = new Date(nextRaidTime2)
+
+      const diff =  Math.floor((nextRT.getTime() - now.getTime()) / 1000);
+      const seconds = Math.floor(diff % 60)
+      const minutes = Math.floor(diff / 60)
+      setSecondsUntilNextRaid2(seconds);
+      setMinutesUntilNextRaid2(minutes)
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextRaidTime2]);
 
 
   return (
@@ -551,10 +631,11 @@ function Lobby() {
         {state?.boss_fight && boss && (
           <div className="bg-red-200 p-4 rounded mb-4">
             <h2 className="text-2xl font-bold text-center">{boss.name}</h2>
+            <p className="text-center text-gray-500">{boss.title} </p>
             <p className="text-center">HP: {boss.hp}</p>
             {!gameStarted && (
               <p className="text-center text-gray-500">
-                ⏳ Raid starts in {secondsUntilStart} sec
+                ⏳ Raid starts in {minutesUntilNextRaid2}m {secondsUntilNextRaid2}s
               </p>
             )}
           </div>
@@ -577,6 +658,9 @@ function Lobby() {
                   {p.hp <= 0 && <span className="text-red-500">☠️</span>}
                   {(state.winner === p.name || (!state.winner && state.raidwinner === p.name)) && (
                     <span className="text-yellow-500">👑</span>
+                  )}
+                  {p.spectator && (
+                    <span className="text-yellow-500">👁</span>
                   )}
                   <span className="font-medium">{p.name}</span>
                   {isAdmin && p.name !== playerName && p.hp > 0 && state?.round === 0 && (
@@ -670,7 +754,7 @@ function Lobby() {
               }}
             />
           ))}
-    
+          {!myPlayer?.spectator && (
           <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <h3 className="font-semibold text-xl text-gray-800 mb-4">Your Stats</h3>
             <p className="text-gray-700 flex gap-4">
@@ -685,8 +769,9 @@ function Lobby() {
               </span>
             </p>
           </div>
+          )}
     
-          {!gameOver && !isDenied && isAlive && state?.round !== 0 && (
+          {!gameOver && !isDenied && isAlive && state?.round !== 0 && !myPlayer?.spectator && (
             <div className="w-full mb-6 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
               <div>
                 <h4 className="font-semibold text-lg text-gray-800 mb-3">Choose Resource</h4>
