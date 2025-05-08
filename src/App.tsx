@@ -50,7 +50,8 @@ interface LobbyState {
 interface Relic {
   id: string | number;
   name: string;
-  flavour_text?: string; // Adjust to match API
+  flavour_text?: string;
+  count: number; // Adjust to match API
 }
 
 export default function App() {
@@ -311,7 +312,7 @@ const fetchRelics = async () => {
               {relics.length > 0 ? (
                 relics.map((relic) => (
                   <li key={relic.id}>
-                    <strong>{relic.name}</strong><br/>
+                    <strong>{relic.name} x{relic.count}</strong><br/>
                     {relic.flavour_text || ""}
                   </li>
                 ))
