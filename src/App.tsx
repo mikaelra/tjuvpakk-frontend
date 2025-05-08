@@ -47,6 +47,12 @@ interface LobbyState {
   gameover: boolean | null;
 }
 
+interface Relic {
+  id: string | number;
+  name: string;
+  flavour_text?: string; // Adjust to match API
+}
+
 export default function App() {
   return (
     <Router>
@@ -175,7 +181,7 @@ const handleEnterRaid = async () => {
 };
 
 const [showRelics, setShowRelics] = useState(false);
-const [relics, setRelics] = useState([]);
+const [relics, setRelics] = useState<Relic[]>([]);
 
 const fetchRelics = async () => {
   if (!isLoggedIn) return;
@@ -187,7 +193,7 @@ const fetchRelics = async () => {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data: { relics: Relic[] } = await response.json(); // Type API response
       setRelics(data.relics);
     } else {
       setRelics([]); // Empty if not ok
