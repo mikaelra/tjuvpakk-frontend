@@ -313,7 +313,7 @@ const fetchRelics = async () => {
                 relics.map((relic) => (
                   <li key={relic.id}>
                     <strong>{relic.name} x{relic.count}</strong><br/>
-                    {relic.flavour_text || ""}
+                    {/* {relic.flavour_text || ""} */}
                   </li>
                 ))
               ) : (
