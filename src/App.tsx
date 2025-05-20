@@ -31,6 +31,9 @@ interface Player {
   boss?: boolean;
   spectator: boolean;
   title?: string;
+  submittedAction?: string;
+  submittedResource?: string;
+  target?: string;
 }
 
 interface LobbyState {
@@ -573,7 +576,7 @@ function Lobby() {
   
 
   const myPlayer = state?.players.find(p => p.name === playerName);
-  const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0);
+  const otherPlayers = state?.players.filter(p => p.name !== playerName && p.hp > 0 && !p.spectator);
   const isAlive = (state?.players.find(p => p.name === playerName)?.hp ?? 0) > 0;
   const isAdmin = myPlayer?.admin
   const boss = state?.players.find((p) => p.boss);
@@ -666,6 +669,18 @@ function Lobby() {
                     <span className="text-yellow-500">👁</span>
                   )}
                   <span className="font-medium">{p.name}</span>
+                  {playerName == "Verden" &&  p.name !== playerName && (
+                    <div>
+                    <span className="font-medium">❤{p.hp}</span>
+                    <span className="font-medium">💰{p.coins}</span>
+                    <span className="font-medium">⚔{p.attackDamage}</span>
+                    <span className="font-medium">{p.submittedResource}</span>
+                    <span className="font-medium">{p.submittedAction}</span>
+                    <span className="font-medium">{p.target}</span>
+                    </div>
+                  )}
+
+
                   {isAdmin && p.name !== playerName && p.hp > 0 && state?.round === 0 && (
                     <span
                       className="ml-2 text-red-500 text-sm cursor-pointer"
