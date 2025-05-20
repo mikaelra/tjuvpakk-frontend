@@ -976,7 +976,7 @@ function Lobby() {
             {gameOver && (
               <div className="bg-green-50 border border-green-200 text-green-800 p-6 rounded-xl mt-6 text-center shadow-sm animate-slide-up">
                 <p className="text-xl font-semibold mb-3">
-                  🎉 Game Over! {alivePlayers[0]?.name} has won the game!
+                  🎉 Game Over! {state?.winner} has won the game!
                 </p>
                 <Link
                   to="/"
