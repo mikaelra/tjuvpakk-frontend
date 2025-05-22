@@ -461,7 +461,6 @@ function Lobby() {
   const [resource, setResource] = useState<string>("");
   const [target, setTarget] = useState<string>("");
 
-  const alivePlayers = state?.players.filter(p => p.hp > 0) || [];
   const gameOver = state?.gameover || false;
   const [denyTarget, setDenyTarget] = useState("");
   const deniedTarget = state?.deny_target;
