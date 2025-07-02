@@ -640,7 +640,7 @@ function Lobby() {
             <p className="text-center">HP: {boss.hp}</p>
             {!gameStarted && (
               <p className="text-center text-gray-500">
-                ⏳ Raid starts in {minutesUntilNextRaid2}m {secondsUntilNextRaid2}s
+                ⏳ Boss-fight starts in {minutesUntilNextRaid2}m {secondsUntilNextRaid2}s
               </p>
             )}
           </div>
