@@ -5,11 +5,12 @@ import SoundtrackButtonLeaderboards from "./music/SoundtrackButtonLeaderboards";
 
 export default function Leaderboards() {
   const [leaderboard, setLeaderboard] = useState<any>(null);
+  const [leaderboardType, setLeaderboardType] = useState<"all-time" | "monthly">("monthly");
 
   useEffect(() => {
     const fetchLeaderboards = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/leaderboards`);
+        const res = await fetch(`${BACKEND_URL}/leaderboards?type=${leaderboardType}`);
         const json = await res.json();
         setLeaderboard(json);
       } catch (err) {
@@ -17,8 +18,8 @@ export default function Leaderboards() {
       }
     };
 
-    fetchLeaderboards();
-  }, []);
+  fetchLeaderboards();
+  }, [leaderboardType]);
 
   if (!leaderboard) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -46,7 +47,27 @@ export default function Leaderboards() {
       <div className="w-full max-w-4xl flex flex-col items-center rounded-2xl shadow-xl bg-white/80 backdrop-blur-sm p-8 z-10"
             style={{ color: "black" }}>
         <h1 className="text-3xl font-bold mb-6">🏆 Leaderboards 🏆</h1>
-
+        <div className="flex gap-4 mb-6 text-lg">
+          <button
+            className={`bg-transparent outline-none focus:outline-none ${
+              leaderboardType === "monthly" ? "underline text-blue-600" : "text-black"
+            }`}
+            onClick={() => setLeaderboardType("monthly")}
+          >
+            {new Date().toLocaleString("default", { month: "long" }).charAt(0).toUpperCase() +
+              new Date().toLocaleString("default", { month: "long" }).slice(1)}{" "}
+            {new Date().getFullYear()}
+          </button>
+          <span>|</span>
+          <button
+            className={`bg-transparent outline-none focus:outline-none ${
+              leaderboardType === "all-time" ? "underline text-blue-600" : "text-black"
+            }`}
+            onClick={() => setLeaderboardType("all-time")}
+          >
+            All-time
+          </button>
+        </div>
         <LeaderboardSection title="Top 5 Most Wins" players={leaderboard.top_wins} statKey="wins" />
         <LeaderboardSection title="Top 5 Most Kills" players={leaderboard.top_kills} statKey="kills" />
         <LeaderboardSection title="Top 5 Most Played Games" players={leaderboard.top_played} statKey="played_games" />
